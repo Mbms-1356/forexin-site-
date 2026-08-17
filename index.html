@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forexin Turkaslani | LIT Strategy Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0f0d;color:#e8e8e8;font-family:Tahoma,Arial,sans-serif;line-height:1.7}
+a{color:#f5c451}
+.langbar{position:sticky;top:0;background:#070b09;display:flex;justify-content:center;gap:6px;padding:8px;flex-wrap:wrap;z-index:9}
+.langbar button{background:#101a15;color:#f5c451;border:1px solid rgba(245,196,81,.4);border-radius:20px;padding:6px 12px;font-size:.8rem}
+.hero{min-height:88vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 35%,#14382b 0%,#0a0f0d 70%)}
+.hero h1{color:#f5c451;font-size:2.2rem;letter-spacing:2px;margin-bottom:10px}
+.hero p{max-width:600px;color:#cfcfcf}
+.fa{direction:rtl;font-size:1.05rem;color:#f5c451;margin:10px 0}
+.btn{display:inline-block;margin:6px;padding:12px 26px;border-radius:40px;background:#f5c451;color:#101010;font-weight:bold;text-decoration:none}
+.btn.o{background:transparent;border:2px solid #f5c451;color:#f5c451}
+section{max-width:900px;margin:auto;padding:40px 18px}
+h2{color:#f5c451;margin-bottom:16px;text-align:center}
+.cards{display:flex;flex-wrap:wrap;justify-content:center}
+.card{background:#101a15;border:1px solid rgba(245,196,81,.25);border-radius:16px;padding:20px;margin:10px;flex:1 1 240px;max-width:300px}
+.card h3{color:#f5c451;margin-bottom:8px}
+.steps{display:flex;flex-wrap:wrap;justify-content:center}
+.step{background:#101a15;border-radius:16px;padding:18px;margin:10px;flex:1 1 200px;max-width:260px;text-align:center;border:1px solid rgba(245,196,81,.25)}
+.step b{display:block;font-size:2rem;color:#f5c451}
+footer{background:#070b09;padding:26px 16px;text-align:center;color:#9a9a9a;font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="langbar">
+<button onclick="setL('fa')">فارسی</button>
+<button onclick="setL('en')">EN</button>
+<button onclick="setL('tr')">TR</button>
+<button onclick="setL('az')">AZ</button>
+<button onclick="setL('ur')">اردو</button>
+<button onclick="setL('ku')">کوردی</button>
+<button onclick="setL('ar')">عربي</button>
+</div>
+<div class="hero">
+<h1>🐂🦁 FOREXIN TURKASLANI</h1>
+<p data-t="hero_p"></p>
+<p class="fa">حرکت با نخبگان، معامله برای برد</p>
+<div>
+<a class="btn" href="https://t.me/forexin_turkaslanifree" data-t="btn_free"></a>
+<a class="btn o" href="https://t.me/TurkaslaniFx_bot" data-t="btn_bot"></a>
+</div>
+</div>
+<section>
+<h2 data-t="h_channels"></h2>
+<div class="cards">
+<div class="card"><h3 data-t="c1t"></h3><p data-t="c1d"></p><a href="https://t.me/forexin_turkaslanifree">Telegram →</a></div>
+<div class="card"><h3 data-t="c2t"></h3><p data-t="c2d"></p><a href="https://t.me/Forexin_Turkaslani_Base">Telegram →</a></div>
+<div class="card"><h3 data-t="c3t"></h3><p data-t="c3d"></p><a href="https://t.me/FX_Dow_Jones">Telegram →</a></div>
+</div>
+</section>
+<section>
+<h2 data-t="h_how"></h2>
+<div class="steps">
+<div class="step"><b>1</b><span data-t="s1"></span><br>@TurkaslaniFx_bot</div>
+<div class="step"><b>2</b><span data-t="s2"></span></div>
+<div class="step"><b>3</b><span data-t="s3"></span></div>
+</div>
+<p style="text-align:center" data-t="note"></p>
+</section>
+<section>
+<h2 data-t="h_broker"></h2>
+<div class="cards"><div class="card"><h3>🏦 WM Markets</h3><p data-t="b_d"></p><a href="https://www.wmmarkets.com/">wmmarkets.com →</a></div></div>
+</section>
+<section>
+<h2 data-t="h_contact"></h2>
+<p style="text-align:center">Admin: <a href="https://t.me/FX_Dow_Jones">@FX_Dow_Jones</a> | <a href="https://t.me/forexinturkaslanilitcommuniti">LIT Group</a></p>
+</section>
+<footer><span data-t="risk"></span><br>© 2026 Forexin Turkaslani — LIT Strategy</footer>
+<script>
+const T={
+en:{hero_p:"Professional Forex Academy — LIT Strategy, Smart Money, Price Action. From zero to pro trader.",btn_free:"Join Free Channel",btn_bot:"Start Bot",h_channels:"Our Channels",c1t:"📢 Free Channel",c1d:"Daily analysis, free signals, education — for everyone.",c2t:"🎓 Base Academy",c2d:"LIT strategy training, broker tutorials, live webinars.",c3t:"💎 VIP",c3d:"Precise signals, advanced training, priority support.",h_how:"How to Join the Academy",s1:"Start the bot",s2:"Invite 2 real friends",s3:"Get your academy link 🎉",note:"🌐 Bot speaks 7 languages",h_broker:"Official Broker",b_d:"WM Markets — fast execution, competitive spreads. Partner link soon.",h_contact:"Contact",risk:"⚠️ Risk Warning: Trading forex involves high risk. Content is educational, not financial advice."},
+fa:{hero_p:"آکادمی حرفه‌ای فارکس — استراتژی LIT، اسمارت مانی، پرایس اکشن. از صفر تا معامله‌گر حرفه‌ای.",btn_free:"عضویت در کانال رایگان",btn_bot:"شروع ربات",h_channels:"کانال‌های ما",c1t:"📢 کانال رایگان",c1d:"تحلیل روزانه، سیگنال رایگان، آموزش — برای همه.",c2t:"🎓 آکادمی بیس",c2d:"آموزش استراتژی LIT
