@@ -13,7 +13,7 @@ a{color:#f5c451;text-decoration:none}
 .langbar button{background:#101a15;color:#f5c451;border:1px solid rgba(245,196,81,.4);border-radius:20px;padding:6px 14px;font-size:.85rem;cursor:pointer}
 .hero{min-height:88vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 35%,#14382b 0%,#0a0f0d 70%)}
 .logowrap{width:150px;height:150px;border-radius:50%;overflow:hidden;border:3px solid #f5c451;box-shadow:0 0 40px rgba(245,196,81,.4);margin-bottom:16px;background:#0a0f0d}
-.logowrap img{width:100%;height:100%;object-fit:cover;transform:scale(1.8)}
+.logowrap img{width:100%;height:100%;object-fit:cover;transform:scale(1.6)}
 .hero h1{color:#f5c451;font-size:2rem;letter-spacing:2px;margin-bottom:10px}
 .hero p{max-width:620px;color:#cfcfcf}
 .slogan{direction:rtl;font-size:1.1rem;color:#f5c451;margin:10px 0;font-weight:bold}
@@ -22,6 +22,7 @@ a{color:#f5c451;text-decoration:none}
 .socials{margin-top:14px;display:flex;gap:12px;justify-content:center}
 .socials a{width:48px;height:48px;border-radius:50%;background:#101a15;border:1px solid rgba(245,196,81,.4);display:flex;align-items:center;justify-content:center}
 .socials svg{width:24px;height:24px}
+.lic{width:18px;height:18px;vertical-align:-4px;margin-inline-end:6px}
 section{max-width:950px;margin:auto;padding:40px 18px}
 h2{color:#f5c451;margin-bottom:16px;text-align:center}
 .cards{display:flex;flex-wrap:wrap;justify-content:center}
@@ -40,6 +41,12 @@ footer{background:#070b09;padding:26px 16px;text-align:center;color:#9a9a9a;font
 </style>
 </head>
 <body>
+<svg style="display:none"><defs>
+<symbol id="i-tg" viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.05-1.99 1.93c-.23.23-.42.42-.83.41z" fill="#2AABEE"/></symbol>
+<symbol id="i-ig" viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19" rx="5" fill="none" stroke="#e1306c" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="#e1306c" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.2" fill="#e1306c"/></symbol>
+<symbol id="i-yt" viewBox="0 0 24 24"><path d="M23 8s-.2-1.6-.8-2.3c-.8-.8-1.7-.8-2.1-.9C17.2 4.5 12 4.5 12 4.5s-5.2 0-8.1.3c-.4.1-1.3.1-2.1.9C1.2 6.4 1 8 1 8S.8 9.9.8 11.8v1.7C.8 15.4 1 17.3 1 17.3s.2 1.6.8 2.3c.8.8 1.8.8 2.3.9 1.7.2 7.9.3 7.9.3s5.2 0 8.1-.3c.4-.1 1.3-.1 2.1-.9.6-.7.8-2.3.8-2.3s.2-1.9.2-3.8v-1.7C23.2 9.9 23 8 23 8z" fill="#ff0000"/><path d="M9.8 15.3V8.7l6.2 3.3-6.2 3.3z" fill="#fff"/></symbol>
+<symbol id="i-web" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#f5c451" stroke-width="1.8"/><path d="M2 12h20M12 2c3 3.5 3 16.5 0 20-3-3.5-3-16.5 0-20z" fill="none" stroke="#f5c451" stroke-width="1.8"/></symbol>
+</defs></svg>
 <div class="langbar">
 <button onclick="setL('fa')">فارسی</button>
 <button onclick="setL('en')">EN</button>
@@ -59,10 +66,10 @@ footer{background:#070b09;padding:26px 16px;text-align:center;color:#9a9a9a;font
 <a class="btn o" href="https://t.me/TurkaslaniFx_bot" data-t="btn_bot">Start Bot</a>
 </div>
 <div class="socials">
-<a href="https://t.me/forexin_turkaslanifree" aria-label="Telegram"><svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.05-1.99 1.93c-.23.23-.42.42-.83.41z" fill="#2AABEE"/></svg></a>
-<a href="https://www.instagram.com/forexin.turkaslani" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="#e1306c" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1.2" fill="#e1306c" stroke="none"/></svg></a>
-<a href="https://www.youtube.com/@Forexin.turkaslani" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23 8s-.2-1.6-.8-2.3c-.8-.8-1.7-.8-2.1-.9C17.2 4.5 12 4.5 12 4.5s-5.2 0-8.1.3c-.4.1-1.3.1-2.1.9C1.2 6.4 1 8 1 8S.8 9.9.8 11.8v1.7C.8 15.4 1 17.3 1 17.3s.2 1.6.8 2.3c.8.8 1.8.8 2.3.9 1.7.2 7.9.3 7.9.3s5.2 0 8.1-.3c.4-.1 1.3-.1 2.1-.9.6-.7.8-2.3.8-2.3s.2-1.9.2-3.8v-1.7C23.2 9.9 23 8 23 8z" fill="#ff0000"/><path d="M9.8 15.3V8.7l6.2 3.3-6.2 3.3z" fill="#fff"/></svg></a>
-<a href="https://mbms-1356.github.io/forexin-site-/" aria-label="Website"><svg viewBox="0 0 24 24" fill="none" stroke="#f5c451" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c3 3.5 3 16.5 0 20-3-3.5-3-16.5 0-20z"/></svg></a>
+<a href="https://t.me/forexin_turkaslanifree" aria-label="Telegram"><svg><use href="#i-tg"/></svg></a>
+<a href="https://www.instagram.com/forexin.turkaslani" aria-label="Instagram"><svg><use href="#i-ig"/></svg></a>
+<a href="https://www.youtube.com/@Forexin.turkaslani" aria-label="YouTube"><svg><use href="#i-yt"/></svg></a>
+<a href="https://mbms-1356.github.io/forexin-site-/" aria-label="Website"><svg><use href="#i-web"/></svg></a>
 </div>
 </div>
 <section>
@@ -76,31 +83,31 @@ footer{background:#070b09;padding:26px 16px;text-align:center;color:#9a9a9a;font
 <span class="badge" data-t="c1b">FREE</span>
 <h3 data-t="c1t">📢 Signal & Live Channel</h3>
 <p data-t="c1d">Real-time market analysis, live session announcements, and millimeter market tips — free for everyone.</p>
-<a href="https://t.me/forexin_turkaslanifree">Telegram →</a>
+<a href="https://t.me/forexin_turkaslanifree"><svg class="lic"><use href="#i-tg"/></svg>Telegram →</a>
 </div>
 <div class="card">
 <span class="badge" data-t="c2b">ACADEMY</span>
 <h3 data-t="c2t">🎓 Base Academy</h3>
 <p data-t="c2d">LIT Strategy training, capital management, micro trading basics — from zero to pro.</p>
-<a href="https://t.me/Forexin_Turkaslani_Base">Telegram →</a>
+<a href="https://t.me/Forexin_Turkaslani_Base"><svg class="lic"><use href="#i-tg"/></svg>Telegram →</a>
 </div>
 <div class="card">
 <span class="badge" data-t="c3b">COMMUNITY</span>
 <h3 data-t="c3t">💬 LIT Community</h3>
 <p data-t="c3d">Q&A, discussion with other traders, chart feedback and live support.</p>
-<a href="https://t.me/forexinturkaslanilitcommuniti">Join Group →</a>
+<a href="https://t.me/forexinturkaslanilitcommuniti"><svg class="lic"><use href="#i-tg"/></svg>Join Group →</a>
 </div>
 <div class="card youtube-card">
 <span class="badge" data-t="c4b">VIDEO</span>
 <h3 data-t="c4t">▶️ YouTube Channel</h3>
 <p data-t="c4d">Full educational videos, analysis archive, strategy tutorials and live sessions.</p>
-<a href="https://www.youtube.com/@Forexin.turkaslani">YouTube →</a>
+<a href="https://www.youtube.com/@Forexin.turkaslani"><svg class="lic"><use href="#i-yt"/></svg>YouTube →</a>
 </div>
 <div class="card insta-card">
 <span class="badge">SOCIAL</span>
 <h3>📸 Instagram</h3>
 <p>forexin.turkaslani — Daily content & stories / محتوای روزانه و استوری</p>
-<a href="https://www.instagram.com/forexin.turkaslani">Instagram →</a>
+<a href="https://www.instagram.com/forexin.turkaslani"><svg class="lic"><use href="#i-ig"/></svg>Instagram →</a>
 </div>
 </div>
 </section>
@@ -115,11 +122,11 @@ footer{background:#070b09;padding:26px 16px;text-align:center;color:#9a9a9a;font
 </section>
 <section>
 <h2 data-t="h_broker">Official Broker</h2>
-<div class="cards"><div class="card"><h3>🏦 WM Markets</h3><p data-t="b_d">Fast execution, competitive spreads. Partner link coming soon.</p><a href="https://www.wmmarkets.com/">wmmarkets.com →</a></div></div>
+<div class="cards"><div class="card"><h3>🏦 WM Markets</h3><p data-t="b_d">Fast execution, competitive spreads. Partner link coming soon.</p><a href="https://www.wmmarkets.com/"><svg class="lic"><use href="#i-web"/></svg>wmmarkets.com →</a></div></div>
 </section>
 <section>
 <h2 data-t="h_contact">Contact</h2>
-<p style="text-align:center"><span data-t="admin_label">Admin</span>: <a href="https://t.me/FX_Dow_Jones">@FX_Dow_Jones</a><br>🌐 mbms-1356.github.io/forexin-site-</p>
+<p style="text-align:center"><span data-t="admin_label">Admin</span>: <a href="https://t.me/FX_Dow_Jones"><svg class="lic"><use href="#i-tg"/></svg>@FX_Dow_Jones</a><br><a href="https://mbms-1356.github.io/forexin-site-/"><svg class="lic"><use href="#i-web"/></svg>mbms-1356.github.io/forexin-site-</a></p>
 </section>
 <footer>
 <span data-t="risk">⚠️ Risk Warning: All content is educational. Trading responsibility is yours.</span><br>
