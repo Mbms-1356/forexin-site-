@@ -10,9 +10,6 @@
 body{background:#0a0f0d;color:#e8e8e8;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
 a{color:#f5c451;text-decoration:none}
 .bg{position:fixed;inset:0;z-index:-1;opacity:.25;background:url('14b541dba-20fc-4358-bde2-e98a62900759.png') center/cover no-repeat}
-.nav{position:sticky;top:0;background:rgba(7,11,9,.95);display:flex;justify-content:center;gap:4px;padding:8px;flex-wrap:wrap;z-index:9;border-bottom:1px solid rgba(245,196,81,.2)}
-.nav a{color:#f5c451;padding:6px 12px;border-radius:16px;font-size:.8rem;border:1px solid transparent}
-.nav a.on{border-color:rgba(245,196,81,.4);background:#101a15}
 .wrap{max-width:860px;margin:auto;padding:24px 16px}
 .mini-logo{width:85px;height:85px;border-radius:50%;border:3px solid #f5c451;outline:2px solid rgba(245,196,81,.35);outline-offset:4px;margin:14px auto;display:block;object-fit:cover;transform:scale(1.05);box-shadow:0 0 35px rgba(245,196,81,.45)}
 h1{color:#f5c451;text-align:center;margin:14px 0 4px;font-size:1.5rem}
@@ -26,15 +23,7 @@ footer{background:rgba(7,11,9,.95);padding:22px 16px;text-align:center;color:#9a
 </head>
 <body>
 <div class="bg"></div>
-<div class="nav">
-<a href="index.html">🏠 خانه</a>
-<a href="maghale.html">📰 مقاله</a>
-<a href="vajeh.html">📖 واژه‌نامه</a>
-<a href="plans.html">💎 پلن‌ها</a>
-<a href="platforms.html" class="on">🖥️ پلتفرم‌ها</a>
-<a href="about.html">👥 آشنایی</a>
-<a href="rules.html">⚖️ قوانین</a>
-</div>
+<div id="nav"></div>
 <div class="wrap">
 <img class="mini-logo" src="1502ea5f6-dc08-45b2-b04e-99d6ea981697-1.png" alt="logo">
 <h1>🖥️ پلتفرم‌های معاملاتی</h1>
@@ -62,5 +51,6 @@ footer{background:rgba(7,11,9,.95);padding:22px 16px;text-align:center;color:#9a
 <p class="meta">⚠️ قبل از نصب، <a href="rules.html">سلب مسئولیت</a> را بخوانید.</p>
 </div>
 <footer>© 2026 Forexin Turkaslani — LIT Strategy<br><a href="https://t.me/forexin_turkaslanifree">کانال رایگان</a> | <a href="https://t.me/TurkaslaniFx_bot">ربات</a></footer>
+<script src="nav.js"></script>
 </body>
 </html>
