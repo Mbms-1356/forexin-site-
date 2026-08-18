@@ -7,6 +7,7 @@ var p=(location.pathname.split('/').pop()||'index.html');if(p==='')p='index.html
 var items=[
 ['index.html','خانه','<path d="M4 10.5L12 3.5l8 7"/><path d="M6 9.5V20h4.5v-5.5h3V20H18V9.5"/>'],
 ['learn.html','آموزش','<path d="M12 4L2 9l10 5 10-5-10-5z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/>'],
+['quiz.html','آزمون','<rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 5V3h6v2"/><path d="M9 13l2 2 4-5"/>'],
 ['maghale.html','مقاله','<rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M7.5 9h9M7.5 12.5h9M7.5 16h5.5"/>'],
 ['results.html','نتایج','<path d="M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 5H4v2a4 4 0 0 0 4 4"/><path d="M17 5h3v2a4 4 0 0 1-4 4"/><path d="M12 13v4"/><path d="M8 21h8"/><path d="M10 21c0-2.2.9-4 2-4s2 1.8 2 4"/>'],
 ['plans.html','پلن‌ها','<path d="M7 3.5h10l4 5.5-9 11.5L3 9l4-5.5z"/><path d="M3 9h18"/><path d="M12 20.5L8.5 9 12 3.5 15.5 9 12 20.5"/>'],
