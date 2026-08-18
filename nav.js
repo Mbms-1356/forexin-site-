@@ -7,6 +7,7 @@ var p=(location.pathname.split('/').pop()||'index.html');if(p==='')p='index.html
 var items=[
 ['index.html','خانه','<path d="M4 10.5L12 3.5l8 7"/><path d="M6 9.5V20h4.5v-5.5h3V20H18V9.5"/>'],
 ['maghale.html','مقاله','<rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M7.5 9h9M7.5 12.5h9M7.5 16h5.5"/>'],
+['candle.html','کندل‌ها','<rect x="5" y="10" width="6" height="8" rx="1"/><path d="M8 10V7M8 18v2"/><rect x="13" y="6" width="6" height="9" rx="1"/><path d="M16 6V3M16 15v3"/>'],
 ['vajeh.html','واژه‌نامه','<path d="M12 6.5C10 4.9 7 4.3 4 4.3v13.9c3 0 6 .6 8 2.1 2-1.5 5-2.1 8-2.1V4.3c-3 0-6 .6-8 2.2z"/><path d="M12 6.5v13.8"/>'],
 ['results.html','نتایج','<path d="M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 5H4v2a4 4 0 0 0 4 4"/><path d="M17 5h3v2a4 4 0 0 1-4 4"/><path d="M12 13v4"/><path d="M8 21h8"/><path d="M10 21c0-2.2.9-4 2-4s2 1.8 2 4"/>'],
 ['plans.html','پلن‌ها','<path d="M7 3.5h10l4 5.5-9 11.5L3 9l4-5.5z"/><path d="M3 9h18"/><path d="M12 20.5L8.5 9 12 3.5 15.5 9 12 20.5"/>'],
