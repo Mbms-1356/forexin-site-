@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mbms-1356.github.io/forexin-site-/sitemap.xml
