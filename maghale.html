@@ -10,9 +10,6 @@
 body{background:#0a0f0d;color:#e8e8e8;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
 a{color:#f5c451;text-decoration:none}
 .bg{position:fixed;inset:0;z-index:-1;opacity:.25;background:url('14b541dba-20fc-4358-bde2-e98a62900759.png') center/cover no-repeat}
-.nav{position:sticky;top:0;background:rgba(7,11,9,.95);display:flex;justify-content:center;gap:4px;padding:8px;flex-wrap:wrap;z-index:9;border-bottom:1px solid rgba(245,196,81,.2)}
-.nav a{color:#f5c451;padding:6px 12px;border-radius:16px;font-size:.8rem;border:1px solid transparent}
-.nav a.on{border-color:rgba(245,196,81,.4);background:#101a15}
 .wrap{max-width:860px;margin:auto;padding:24px 16px}
 .logowrap{width:110px;height:110px;border-radius:50%;padding:4px;background:linear-gradient(145deg,#ffe9a3,#f5c451 25%,#8a6d1f 50%,#f5c451 75%,#b8860b);box-shadow:0 10px 30px rgba(0,0,0,.65),0 0 35px rgba(245,196,81,.35);margin:14px auto}
 .lin{width:100%;height:100%;border-radius:50%;overflow:hidden;background:#000;box-shadow:inset 0 0 12px rgba(0,0,0,.85)}
@@ -47,15 +44,7 @@ footer{background:rgba(7,11,9,.95);padding:22px 16px;text-align:center;color:#9a
 </head>
 <body>
 <div class="bg"></div>
-<div class="nav">
-<a href="index.html">🏠 خانه</a>
-<a href="maghale.html" class="on">📰 مقاله</a>
-<a href="vajeh.html">📖 واژه‌نامه</a>
-<a href="plans.html">💎 پلن‌ها</a>
-<a href="platforms.html">🖥️ پلتفرم‌ها</a>
-<a href="about.html">👥 آشنایی</a>
-<a href="rules.html">⚖️ قوانین</a>
-</div>
+<div id="nav"></div>
 <div class="wrap">
 <div class="logowrap"><div class="lin"><img src="1502ea5f6-dc08-45b2-b04e-99d6ea981697-1.png" alt="Forexin"></div></div>
 <h1>📰 سیکل‌ها و فازهای مارکت</h1>
@@ -186,5 +175,6 @@ footer{background:rgba(7,11,9,.95);padding:22px 16px;text-align:center;color:#9a
 <a href="vajeh.html">📖 واژه‌نامهٔ اصطلاحات</a></p>
 </div>
 <footer>© 2026 Forexin Turkaslani — LIT Strategy</footer>
+<script src="nav.js"></script>
 </body>
-  </html>
+</html>
