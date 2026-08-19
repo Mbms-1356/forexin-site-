@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forexin | چارت زندهٔ بازار</title>
+<style>
+body{font-family:Tahoma,sans-serif;background:#0d1117;color:#fff;margin:0;padding:16px}
+.card{background:#161b22;border-radius:14px;padding:16px;margin-bottom:16px;border:1px solid #21262d}
+.price{font-size:28px;font-weight:bold;color:#2ecc71;margin-top:6px}
+.gold{color:#f1c40f;margin-top:6px;font-size:17px}
+small{color:#8b949e}
+h2{text-align:center}
+</style>
+</head>
+<body>
+<h2>📊 فارکسین ترک اصلانی — بازار زنده</h2>
+
+<div class="card">
+  <div>💵 تتر / تومان <small id="ts"></small></div>
+  <div class="price" id="usdt">در حال دریافت...</div>
+  <div class="gold" id="gold18"></div>
+</div>
+
+<div class="card">
+  <div>🥇 انس جهانی طلا (XAUUSD)</div>
+  <div id="tv_gold" style="height:340px;margin-top:8px"></div>
+</div>
+
+<div class="card">
+  <div>₮ تتر / دلار (USDTUSD)</div>
+  <div id="tv_usdt" style="height:340px;margin-top:8px"></div>
+</div>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+new TradingView.widget({container_id:"tv_gold",autosize:true,symbol:"OANDA:XAUUSD",interval:"60",timezone:"Asia/Tehran",theme:"dark",style:"1",locale:"en"});
+new TradingView.widget({container_id:"tv_usdt",autosize:true,symbol:"BINANCE:USDTUSD",interval:"60",timezone:"Asia/Tehran",theme:"dark",style:"1",locale:"en"});
+
+async function load(){
+  try{
+    const d = await fetch('price.json?t=' + Date.now());
+    const j = await d.json();
+    document.getElementById('usdt').textContent = Number(j.usdt).toLocaleString('fa-IR') + ' تومان';
+    document.getElementById('ts').textContent = '| بروزرسانی: ' + (j.updated || '');
+    try{
+      const g = await (await fetch('https://api.gold-api.com/price/XAU')).json();
+      const gram = Math.round(j.usdt * g.price / 31.1035 * 0.75);
+      document.getElementById('gold18').textContent = '🪙 طلای ۱۸ عیار: ' + gram.toLocaleString('fa-IR') + ' تومان/گرم';
+    }catch(e){}
+  }catch(e){}
+}
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
