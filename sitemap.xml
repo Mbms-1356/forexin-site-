@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://mbms-1356.github.io/forexin-site-/</loc><lastmod>2026-08-18</lastmod><priority>1.0</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/learn.html</loc><lastmod>2026-08-18</lastmod><priority>0.9</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/quiz.html</loc><lastmod>2026-08-18</lastmod><priority>0.9</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/lit.html</loc><lastmod>2026-08-18</lastmod><priority>0.8</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/candle.html</loc><lastmod>2026-08-18</lastmod><priority>0.8</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/patterns.html</loc><lastmod>2026-08-18</lastmod><priority>0.8</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/maghale.html</loc><lastmod>2026-08-18</lastmod><priority>0.8</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/vajeh.html</loc><lastmod>2026-08-18</lastmod><priority>0.7</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/results.html</loc><lastmod>2026-08-18</lastmod><priority>0.7</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/plans.html</loc><lastmod>2026-08-18</lastmod><priority>0.7</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/platforms.html</loc><lastmod>2026-08-18</lastmod><priority>0.6</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/about.html</loc><lastmod>2026-08-18</lastmod><priority>0.6</priority></url>
-<url><loc>https://mbms-1356.github.io/forexin-site-/rules.html</loc><lastmod>2026-08-18</lastmod><priority>0.5</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/</loc><lastmod>2026-08-19</lastmod><priority>1.0</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/lit-liquidity.html</loc><lastmod>2026-08-19</lastmod><priority>0.9</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/learn.html</loc><lastmod>2026-08-19</lastmod><priority>0.8</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/maghale.html</loc><lastmod>2026-08-19</lastmod><priority>0.8</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/candle.html</loc><priority>0.7</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/patterns.html</loc><priority>0.7</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/vajeh.html</loc><priority>0.7</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/lit.html</loc><priority>0.7</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/plans.html</loc><priority>0.6</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/platforms.html</loc><priority>0.6</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/rules.html</loc><priority>0.6</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/quiz.html</loc><priority>0.6</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/about.html</loc><priority>0.5</priority></url>
+<url><loc>https://mbms-1356.github.io/forexin-site-/results.html</loc><priority>0.5</priority></url>
 </urlset>
