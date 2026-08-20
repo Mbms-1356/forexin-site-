@@ -1,0 +1,20 @@
+{
+  "name": "Forexin Agent v17 Clean",
+  "nodes": [
+    {"parameters":{},"name":"Manual Trigger","type":"n8n-nodes-base.manualTrigger","typeVersion":1,"position":[160,300]},
+    {"parameters":{"url":"https://mbms-1356.github.io/forexin-site-/price.json","options":{}},"name":"SitePrice","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[360,300]},
+    {"parameters":{"url":"https://api.gold-api.com/price/XAU","options":{}},"name":"Gold","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[560,300]},
+    {"parameters":{"jsCode":"const sp=$('SitePrice').first().json;const gr=$('Gold').first().json;let usdt=0;try{usdt=parseInt(sp.usdt)}catch(e){}let ounce=0;try{ounce=parseFloat(gr.price)}catch(e){}const gold18=(usdt&&ounce)?Math.round(usdt*ounce/31.1035*0.75):0;const topics=['استاپ‌لاس چرا بیمه است؟','اهرم؛ شمشیر دو لبه','سشن لندن یا نیویورک؟','پرایس اکشن یا اندیکاتور؟','قانون ۲٪ مدیریت سرمایه','لیکوییدیتی چیست؟','وین‌ریت مهم نیست، R:R مهم است','اشتباه رایج تریدرهای تازه‌کار','صبر؛ سلاح حرفه‌ای‌ها','داستان یک معاملهٔ بازنده'];const topic=topics[Math.floor(Math.random()*topics.length)];const gold18Fa=gold18?gold18.toLocaleString('fa-IR'):'—';const imgUrl='https://image.pollinations.ai/prompt/'+encodeURIComponent('luxury forex trading concept, gold candlestick chart, dark background, smart money liquidity zones, cinematic lighting, no text');const short='برای موضوع «'+topic+'» یک بستهٔ محتوای فارسی بساز: ۱) هوک اینستاگرام ۲) کپشن ۲ خطی با CTA ۳) ۸ هشتگ ۴) ایده ریلز ۳ صحنه ۵) پست لینکدین ۲ خطی ۶) پست تلگرام ۲ خطی. مختصر، حرفه‌ای، بدون وعدهٔ سود.';const fallback='📸 '+topic+' — با دادهٔ زندهٔ بازار در یک ریلز ۳۰ ثانیه‌ای توضیحش می‌دهم. تا آخر ببین و نظرت را بنویس! 👇';return[{json:{topic,imgUrl,short,gold18Fa,ounce:ounce||'—',fallback}}];"},"name":"Prompt Builder","type":"n8n-nodes-base.code","typeVersion":2,"position":[760,300]},
+    {"parameters":{"url":"={{ 'https://text.pollinations.ai/' + encodeURIComponent($('Prompt Builder').first().json.short) }}","options":{"timeout":45000}},"name":"AI Brain","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[960,300],"onError":"continueRegularOutput"},
+    {"parameters":{"jsCode":"const d=$('Prompt Builder').first().json;const aiRaw=$('AI Brain').first().json;let ai=typeof aiRaw==='string'?aiRaw:((aiRaw&&typeof aiRaw.data==='string')?aiRaw.data:'');if(ai.indexOf('error')>-1||ai.indexOf('{')===0||ai.length<80)ai='';const footer='\\n\\n💹 قیمت لحظه‌ای تتر:\\n🥇 nobitex.ir/price/usdt\\n🥈 tabdeal.org/usdt-price\\n🥉 ompfinex.com/markets/usdt-price\\n\\n🪙 طلای ۱۸ عیار: '+d.gold18Fa+' تومان/گرم\\n🌍 انس جهانی: '+d.ounce+' دلار\\n\\n▶️ youtube.com/@Forexin.turkaslani';const pack='📝 بسته روز + استودیو هوش\\n🎯 '+d.topic+'\\n\\n'+(ai||d.fallback)+footer;return[{json:{pack,img:d.imgUrl}}];"},"name":"Pack Builder","type":"n8n-nodes-base.code","typeVersion":2,"position":[1160,300]},
+    {"parameters":{"method":"POST","url":"https://api.github.com/repos/Mbms-1356/site-bot/dispatches","sendHeaders":true,"headerParameters":{"parameters":[{"name":"Authorization","value":"token PASTE_PAT_HERE"},{"name":"Accept","value":"application/vnd.github+json"},{"name":"User-Agent","value":"n8n"}]},"sendBody":true,"specifyBody":"json","jsonBody":"={{ JSON.stringify({ event_type: 'send_pack', client_payload: { text: $json.pack, img: $json.img } }) }}","options":{}},"name":"Send via GitHub Relay","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[1360,300],"retryOnFail":true,"maxTries":3,"waitBetweenTries":5000}
+  ],
+  "connections":{
+    "Manual Trigger":{"main":[[{"node":"SitePrice","type":"main","index":0}]]},
+    "SitePrice":{"main":[[{"node":"Gold","type":"main","index":0}]]},
+    "Gold":{"main":[[{"node":"Prompt Builder","type":"main","index":0}]]},
+    "Prompt Builder":{"main":[[{"node":"AI Brain","type":"main","index":0}]]},
+    "AI Brain":{"main":[[{"node":"Pack Builder","type":"main","index":0}]]},
+    "Pack Builder":{"main":[[{"node":"Send via GitHub Relay","type":"main","index":0}]]}
+  }
+}
