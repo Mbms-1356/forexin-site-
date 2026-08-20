@@ -1,8 +1,9 @@
-import json,os,io,time,urllib.request as ur,random,traceback,subprocess
+import json,os,io,time,urllib.request as ur,random,traceback,subprocess,base64
 API='https://api.telegram.org/bot'+os.environ['TOKEN'];CHAT='227491135'
 LOGO='https://mbms-1356.github.io/forexin-site-/logo.png'
 VAULT='https://mbms-1356.github.io/forexin-site-/vault.json'
 FONT='https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Bold.ttf'
+PAT=os.environ.get('GH_PAT','')
 day=int(time.time()//86400)
 def post(p,d,ct='application/json'):
     return ur.urlopen(ur.Request(API+p,data=d,headers={'Content-Type':ct}),timeout=40).read()
@@ -31,6 +32,15 @@ def send_file(path,ff,fname,fdata,fctype,caption):
         body+=('--'+b+'\r\n').encode()+b'Content-Disposition: form-data; name="caption"\r\n\r\n'+caption[:1024].encode()+b'\r\n'
     body+=('--'+b+'\r\n').encode()+('Content-Disposition: form-data; name="%s"; filename="%s"\r\nContent-Type: %s\r\n\r\n'%(ff,fname,fctype)).encode()+fdata+('\r\n--'+b+'--\r\n').encode()
     post(path,body,'multipart/form-data; boundary='+b)
+def commit_site(path,content):
+    try:
+        body={'message':'update '+path,'content':base64.b64encode(content.encode()).decode()}
+        try:
+            old=json.loads(get('https://api.github.com/repos/Mbms-1356/forexin-site-/contents/'+path,15))
+            body['sha']=old.get('sha')
+        except Exception:pass
+        ur.urlopen(ur.Request('https://api.github.com/repos/Mbms-1356/forexin-site-/contents/'+path,data=json.dumps(body).encode(),headers={'Authorization':'token '+PAT,'User-Agent':'studio','Accept':'application/vnd.github+json'},method='PUT'),timeout=30).read()
+    except Exception:pass
 try:
     from PIL import Image,ImageDraw,ImageFont,ImageChops
     F=None;F2=None
@@ -92,7 +102,13 @@ try:
     vault={'principles':[],'quotes':[],'hooks':[],'lit_facts':[]}
     try:vault.update(json.loads(get(VAULT,15)))
     except Exception:pass
-    topic=random.choice(vault['principles'] or ['مدیریت سرمایه: اول بقا، بعد سود'])
+    used=[]
+    try:used=json.loads(get('https://mbms-1356.github.io/forexin-site-/used.json',15))
+    except Exception:pass
+    pool=[p for p in vault['principles'] if p not in used] or vault['principles'] or ['مدیریت سرمایه: اول بقا، بعد سود']
+    topic=random.choice(pool)
+    used.append(topic);used=used[-30:]
+    commit_site('used.json',json.dumps(used,ensure_ascii=False))
     hookT=random.choice(vault['hooks'] or ['قبل از هر ترید این را ببین'])
     quote=random.choice(vault['quotes'] or ['اول بقا، بعد سود.'])
     facts=' '.join(vault['lit_facts'])
@@ -119,10 +135,9 @@ try:
     except Exception:pass
     if not ai:
         try:
-            gh=os.environ.get('GH_PAT','')
-            if gh:
+            if PAT:
                 q=json.dumps({'model':'gpt-4o-mini','messages':[{'role':'system','content':sysp},{'role':'user','content':usr}],'temperature':0.9,'max_tokens':2200}).encode()
-                r=ur.urlopen(ur.Request('https://models.inference.ai.azure.com/chat/completions',data=q,headers={'Content-Type':'application/json','Authorization':'Bearer '+gh}),timeout=60).read().decode()
+                r=ur.urlopen(ur.Request('https://models.inference.ai.azure.com/chat/completions',data=q,headers={'Content-Type':'application/json','Authorization':'Bearer '+PAT}),timeout=60).read().decode()
                 ai=json.loads(r)['choices'][0]['message']['content']
         except Exception:pass
     if not ai:
@@ -138,12 +153,13 @@ try:
         scenes=[chart(720,900,hookT,'',day+1),chart(720,900,topic,'راه‌حل: متد LIT',day+2),cta(720,900)]
         for i,im in enumerate(scenes):
             o=io.BytesIO();im.convert('RGB').save(o,'JPEG',quality=86);open('s%d.jpg'%i,'wb').write(o.getvalue())
-            subprocess.run(['ffmpeg','-y','-loop','1','-i','s%d.jpg'%i,'-t','4','-vf','zoompan=z=min(zoom+0.002,1.3):d=100:s=720x900:fps=25','-c:v','libx264','-pix_fmt','yuv420p','s%d.mp4'%i],timeout=120,check=True,capture_output=True)
+            subprocess.run(['ffmpeg','-y','-loop','1','-i','s%d.jpg'%i,'-t','4','-vf','scale=720:900,fps=25','-c:v','libx264','-pix_fmt','yuv420p','s%d.mp4'%i],timeout=120,check=True,capture_output=True)
         open('list.txt','w').write("file 's0.mp4'\nfile 's1.mp4'\nfile 's2.mp4'\n")
         subprocess.run(['ffmpeg','-y','-f','concat','-safe','0','-i','list.txt','-c','copy','reel.mp4'],timeout=120,check=True,capture_output=True)
         video=open('reel.mp4','rb').read()
     except Exception as ex:
-        print('video fail',ex)
+        try:txt('🎬 خطای ریلز: '+str(ex)[:200])
+        except Exception:pass
     o=io.BytesIO();chart(1080,1080,hookT,topic,day).convert('RGB').save(o,'JPEG',quality=88);cover=o.getvalue()
     o=io.BytesIO();chart(1080,608,'▶ '+topic,'',day+3).convert('RGB').save(o,'JPEG',quality=88);wide=o.getvalue()
     cardimg=None
@@ -163,7 +179,7 @@ try:
             l3=logo.resize((280,280));cim.paste(l3,((W-280)//2,H-350),l3)
         o=io.BytesIO();cim.save(o,'JPEG',quality=88);cardimg=o.getvalue()
     except Exception:pass
-    footer='\n\n━ ━ ━  ━ ━\n تتر: nobitex.ir/price/usdt\n🪙 طلای ۱۸: '+fa(g18)+' تومان/گرم | 🌍 انس: '+str(ounce)+' دلار\n\n🎓 یوتیوب: youtube.com/@Forexin.turkaslani\n📢 کانال: t.me/forexin_turkaslanifree\n🤖 ربات: t.me/TurkaslaniSiteBot\n🔥 استارت بزن، قیمت لحظه‌ای ببین!'
+    footer='\n\n━ ━ ━  ━ ━\n💹 تتر: nobitex.ir/price/usdt\n🪙 طلای ۱۸: '+fa(g18)+' تومان/گرم | 🌍 انس: '+str(ounce)+' دلار\n\n🎓 یوتیوب: youtube.com/@Forexin.turkaslani\n📢 کانال: t.me/forexin_turkaslanifree\n🤖 ربات: t.me/TurkaslaniSiteBot\n🔥 استارت بزن، قیمت لحظه‌ای ببین!'
     head='📝 بسته روز | استودیو هوش فارکسین\n🎯 '+topic+'\n\n'
     send_file('/sendPhoto','photo','insta.jpg',cover,'image/jpeg',head+'📸 اینستاگرام:\n'+part(ai,'[اینستا]','[یوتیوب]'))
     if video:send_file('/sendVideo','video','reel.mp4',video,'video/mp4','🎬 ریلز ۳صحنه‌ای:\n'+part(ai,'[ریلز]',''))
