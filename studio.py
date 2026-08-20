@@ -3,7 +3,7 @@ API='https://api.telegram.org/bot'+os.environ['TOKEN'];CHAT='227491135'
 LOGO='https://mbms-1356.github.io/forexin-site-/logo.png'
 VAULT='https://mbms-1356.github.io/forexin-site-/vault.json'
 FONT='https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Bold.ttf'
-PAT=os.environ.get('GH_PAT','')
+PAT=os.environ.get('GH_PAT','');OR=os.environ.get('OPENROUTER_KEY','')
 day=int(time.time()//86400)
 def post(p,d,ct='application/json'):
     return ur.urlopen(ur.Request(API+p,data=d,headers={'Content-Type':ct}),timeout=40).read()
@@ -125,26 +125,28 @@ try:
     except Exception:pass
     sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. هوک‌ها کنجکاوی/ترس از دست دادن بسازند و عدد/زمان داشته باشند. خروجی فارسی با برچسب‌ها: [اینستا] هوک+کپشن ۳خط+CTA+۸هشتگ  [یوتیوب] تایتل سئو+توضیح+۶تگ  [لینکدین] ۳خط  [تلگرام] پست+سوال  [آموزش] توصیه کوتاه  [ریلز] ۳صحنه با دیالوگ. پایان: این توصیهٔ مالی نیست.'
     usr='موضوع: '+topic+' | انس: '+str(ounce)+' | ترندهای جهانی: '+trends
-    ai=''
-    try:
-        dk=os.environ.get('DEEPSEEK_KEY','')
-        if dk:
-            q=json.dumps({'model':'deepseek-chat','messages':[{'role':'system','content':sysp},{'role':'user','content':usr}]}).encode()
-            r=ur.urlopen(ur.Request('https://api.deepseek.com/chat/completions',data=q,headers={'Content-Type':'application/json','Authorization':'Bearer '+dk}),timeout=60).read().decode()
-            ai=json.loads(r)['choices'][0]['message']['content']
-    except Exception:pass
-    if not ai:
+    # AI brain: OpenRouter (live free models) -> pollinations -> template
+    models=[]
+    if OR:
         try:
-            if PAT:
-                q=json.dumps({'model':'gpt-4o-mini','messages':[{'role':'system','content':sysp},{'role':'user','content':usr}],'temperature':0.9,'max_tokens':2200}).encode()
-                r=ur.urlopen(ur.Request('https://models.inference.ai.azure.com/chat/completions',data=q,headers={'Content-Type':'application/json','Authorization':'Bearer '+PAT}),timeout=60).read().decode()
-                ai=json.loads(r)['choices'][0]['message']['content']
+            ml=json.loads(get('https://openrouter.ai/api/v1/models',20))
+            free=[m.get('id','') for m in ml.get('data',[]) if m.get('pricing',{}).get('prompt')=='0' and m.get('pricing',{}).get('completion')=='0']
+            pref=[m for m in free if any(k in m.lower() for k in ['qwen','llama','mistral','deepseek','gemini','alpha'])]
+            models=(pref or free)[:3]
+        except Exception:pass
+    ai=''
+    for m in models:
+        try:
+            body=json.dumps({'model':m,'messages':[{'role':'system','content':sysp},{'role':'user','content':usr}],'temperature':0.9,'max_tokens':2200}).encode()
+            r=ur.urlopen(ur.Request('https://openrouter.ai/api/v1/chat/completions',data=body,headers={'Content-Type':'application/json','Authorization':'Bearer '+OR,'User-Agent':'forexin'}),timeout=60).read().decode()
+            cand=json.loads(r)['choices'][0]['message']['content']
+            if cand and '[اینستا]' in cand:ai=cand;break
         except Exception:pass
     if not ai:
         try:
             q=json.dumps({'messages':[{'role':'system','content':sysp},{'role':'user','content':usr}],'model':'openai'}).encode()
             r=ur.urlopen(ur.Request('https://text.pollinations.ai/',data=q,headers={'Content-Type':'application/json'}),timeout=60).read().decode('utf-8','ignore')
-            if len(r)>100 and 'error' not in r[:30].lower():ai=r
+            if len(r)>100 and 'error' not in r[:30].lower() and '[اینستا]' in r:ai=r
         except Exception:pass
     if not ai or '[اینستا]' not in ai:
         ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند و همان ۹۰٪ ضرر می‌کنند.\n'+quote+' تجربه‌ات را بنویس 👇\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\nدر این ویدیو «'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌های بازار فراموش نمی‌کنند. بقا از سود مهم‌تر است. #Forex #SmartMoney #RiskManagement\n\n[تلگرام] 🔥 '+topic+'\nشما این اصل را رعایت می‌کنید؟ در گروه بنویسید.\n\n[آموزش] امروز یک معاملهٔ تمرینی با رعایت کامل این اصل انجام بده و نتیجه را در ژورنال یادداشت کن.\n\n[ریلز] صحنه۱: «'+hookT+'» صحنه۲: توضیح روی چارت صحنه۳: «فالو کن: فارکسین»'
@@ -186,7 +188,7 @@ try:
     send_file('/sendPhoto','photo','cover.jpg',wide,'image/jpeg','▶️ یوتیوب:\n'+part(ai,'[یوتیوب]','[لینکدین]')+'\n\n💼 لینکدین:\n'+part(ai,'[لینکدین','[تلگرام]'))
     if cardimg:send_file('/sendPhoto','photo','card.jpg',cardimg,'image/jpeg','💡 کارت آموزشی:\n'+part(ai,'[آموزش]','[ریلز]'))
     txt('📢 تلگرام:\n'+part(ai,'[تلگرام]','[آموزش]')+'\n\n🦁 '+quote+footer)
-    print('OK')
+    print('OK models=',models)
 except Exception:
     try:txt('🛠 DEBUG:\n'+traceback.format_exc()[-1200:])
     except Exception:print(traceback.format_exc())
