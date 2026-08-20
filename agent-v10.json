@@ -1,0 +1,56 @@
+{
+  "name": "Forexin Agent v10 SmartSend",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://mbms-1356.github.io/forexin-site-/price.json",
+        "options": {}
+      },
+      "name": "SitePrice",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.gold-api.com/price/XAU",
+        "options": {}
+      },
+      "name": "Gold",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sp = $('SitePrice').first().json; const gr = $('Gold').first().json; let usdt = 0; try { usdt = parseInt(sp.usdt); } catch (e) {} let ounce = 0; try { ounce = parseFloat(gr.price); } catch (e) {} const gold18 = (usdt && ounce) ? Math.round(usdt * ounce / 31.1035 * 0.75) : 0; const topics = ['استاپ‌لاس چرا بیمه است؟','اهرم؛ شمشیر دو لبه','سشن لندن یا نیویورک؟','پرایس اکشن یا اندیکاتور؟','قانون ۲٪ مدیریت سرمایه','لیکوییدیتی چیست؟','وین‌ریت مهم نیست، R:R مهم است','اشتباه رایج تریدرهای تازه‌کار','صبر؛ سلاح حرفه‌ای‌ها','داستان یک معاملهٔ بازنده']; const day = Math.floor(Date.now() / 86400000); const topic = topics[day % topics.length]; const gold18Fa = gold18 ? gold18.toLocaleString('fa-IR') : '—'; const imgUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent('luxury forex trading concept, ' + topic + ', gold candlestick chart, dark background, smart money liquidity zones, cinematic lighting, no text'); const sys = 'تو مدیر محتوا و بازاریابی برند «فارکسین ترک اصلانی» هستی. اطلاعات برند: مدرس فارکس با متد LIT (القای نقدینگی) مبتنی بر نقدینگی و پول هوشمند؛ مخاطب: تریدرهای فارسی‌زبان مبتدی تا متوسط؛ لحن: حرفه‌ای، صمیمی، مطمئن، بدون وعدهٔ سود؛ کانال‌ها: تلگرام forexin_turkaslanifree و Forexin_Turkaslani_Base و گروه LIT Community، یوتیوب و اینستاگرام و سایت. اصول: اول مدیریت ریسک، بقا مهم‌تر از سود، بدون تضمین سود.'; const usr = 'موضوع امروز: ' + topic + '. دقیقاً با این فرمت بنویس: ۱) کپشن اینستاگرام با هوک جذاب ۲) ایدهٔ ریلز ۳۰ ثانیه‌ای با ۳ صحنه ۳) ۱۰ هشتگ ۴) پست لینکدین حرفه‌ای ۵) پست کوتاه تلگرام. فقط فارسی و مرتب.'; let ai = ''; try { const r = await fetch('https://text.pollinations.ai/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], model: 'openai' }) }); ai = await r.text(); } catch (e) { ai = ''; } const lines = ['📝 بسته محتوای روز + استودیو هوشمند','', '🎯 موضوع: ' + topic,'','🖼️ کاور AI ریلز (بزن و ذخیره کن):', imgUrl,'', (ai && ai.length > 50 ? ai : '📸 کپشن اینستاگرام: ' + topic + ' — با دادهٔ زنده بازار در یک ریلز ۳۰ ثانیه‌ای توضیحش می‌دهم. تا آخر ببین و نظرت را بنویس! 👇'), '', '💹 قیمت لحظه‌ای تتر (بزن روی لینک):', '🥇 nobitex.ir/price/usdt', '🥈 tabdeal.org/usdt-price', '🥉 ompfinex.com/markets/usdt-price','', '🪙 طلای ۱۸ عیار: ' + gold18Fa + ' تومان/گرم (محاسبهٔ زنده)', '🌍 انس جهانی: ' + ounce + ' دلار (زنده)','','▶️ youtube.com/@Forexin.turkaslani']; return [{ json: { topic: topic, pack: lines.join('\\n') } }];"
+      },
+      "name": "AI Content Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const token = 'PASTE_YOUR_TOKEN_HERE'; const pack = $('AI Content Engine').first().json.pack; const body = JSON.stringify({ chat_id: 227491135, text: pack }); const targets = ['https://api.telegram.org/bot' + token + '/sendMessage', 'https://corsproxy.io/?url=' + encodeURIComponent('https://api.telegram.org/bot' + token + '/sendMessage')]; let ok = false; let err = ''; for (const u of targets) { try { const r = await fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body }); if (r.ok) { ok = true; break; } err = 'http ' + r.status; } catch (e) { err = String(e); } } return [{ json: { sent: ok, err: err } }];"
+      },
+      "name": "Smart Sender",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1080, 300]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": { "main": [[{ "node": "SitePrice", "type": "main", "index": 0 }]] },
+    "SitePrice": { "main": [[{ "node": "Gold", "type": "main", "index": 0 }]] },
+    "Gold": { "main": [[{ "node": "AI Content Engine", "type": "main", "index": 0 }]] },
+    "AI Content Engine": { "main": [[{ "node": "Smart Sender", "type": "main", "index": 0 }]] }
+  }
+}
