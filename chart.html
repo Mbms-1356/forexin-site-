@@ -7,8 +7,8 @@
 <style>
 body{font-family:Tahoma,sans-serif;background:#0d1117;color:#fff;margin:0;padding:16px}
 .card{background:#161b22;border-radius:14px;padding:16px;margin-bottom:16px;border:1px solid #21262d}
-.price{font-size:28px;font-weight:bold;color:#2ecc71;margin-top:6px}
-.gold{color:#f1c40f;margin-top:6px;font-size:17px}
+.price{font-size:30px;font-weight:bold;color:#2ecc71;margin-top:6px}
+.gold{color:#f1c40f;margin-top:8px;font-size:17px}
 small{color:#8b949e}
 h2{text-align:center}
 </style>
@@ -20,38 +20,65 @@ h2{text-align:center}
   <div>💵 تتر / تومان <small id="ts"></small></div>
   <div class="price" id="usdt">در حال دریافت...</div>
   <div class="gold" id="gold18"></div>
+  <small id="srcs"></small>
 </div>
 
 <div class="card">
   <div>🥇 انس جهانی طلا (XAUUSD)</div>
-  <div id="tv_gold" style="height:340px;margin-top:8px"></div>
+  <div id="tv_gold" style="height:320px;margin-top:8px"></div>
 </div>
 
 <div class="card">
   <div>₮ تتر / دلار (USDTUSD)</div>
-  <div id="tv_usdt" style="height:340px;margin-top:8px"></div>
+  <div id="tv_usdt" style="height:320px;margin-top:8px"></div>
 </div>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-new TradingView.widget({container_id:"tv_gold",autosize:true,symbol:"OANDA:XAUUSD",interval:"60",timezone:"Asia/Tehran",theme:"dark",style:"1",locale:"en"});
-new TradingView.widget({container_id:"tv_usdt",autosize:true,symbol:"BINANCE:USDTUSD",interval:"60",timezone:"Asia/Tehran",theme:"dark",style:"1",locale:"en"});
+new TradingView.widget({container_id:"tv_gold",autosize:true,symbol:"OANDA:XAUUSD",interval:"60",timezone:"Asia/Tehran",theme:"dark",style:"1"});
+new TradingView.widget({container_id:"tv_usdt",autosize:true,symbol:"BINANCE:USDTUSD",interval:"60",timezone:"Asia/Tehran",theme:"dark",style:"1"});
 
+const API='https://api.nobitex.ir/market/stats?srcCurrency=usdt&dstCurrency=rls';
+async function txt(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0;return r.text();}
+async function nobitex(){
+  const tries=[
+    API,
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(API),
+    'https://corsproxy.io/?url='+encodeURIComponent(API)
+  ];
+  for(const u of tries){
+    try{
+      const d=JSON.parse(await txt(u));
+      const v=Math.floor(parseInt(d.stats['usdt-rls'].latest)/10);
+      if(v>100000&&v<400000)return v;
+    }catch(e){}
+  }
+  throw 0;
+}
+async function goldOunce(){
+  try{const d=JSON.parse(await txt('https://api.gold-api.com/price/XAU'));return d.price;}
+  catch(e){
+    try{const d=JSON.parse(await txt('https://api.allorigins.win/raw?url='+encodeURIComponent('https://api.gold-api.com/price/XAU')));return d.price;}catch(e2){return 0;}
+  }
+}
 async function load(){
   try{
-    const d = await fetch('price.json?t=' + Date.now());
-    const j = await d.json();
-    document.getElementById('usdt').textContent = Number(j.usdt).toLocaleString('fa-IR') + ' تومان';
-    document.getElementById('ts').textContent = '| بروزرسانی: ' + (j.updated || '');
+    const p=await nobitex();
+    document.getElementById('usdt').textContent=p.toLocaleString('fa-IR')+' تومان';
+    document.getElementById('ts').textContent='| زنده ⚡ '+new Date().toLocaleTimeString('fa-IR');
+    document.getElementById('srcs').textContent='منبع: نوبیتکس (لحظه‌ای)';
+    const o=await goldOunce();
+    if(o){document.getElementById('gold18').textContent='🪙 طلای ۱۸ عیار: '+Math.round(p*o/31.1035*0.75).toLocaleString('fa-IR')+' تومان/گرم';}
+  }catch(e){
     try{
-      const g = await (await fetch('https://api.gold-api.com/price/XAU')).json();
-      const gram = Math.round(j.usdt * g.price / 31.1035 * 0.75);
-      document.getElementById('gold18').textContent = '🪙 طلای ۱۸ عیار: ' + gram.toLocaleString('fa-IR') + ' تومان/گرم';
-    }catch(e){}
-  }catch(e){}
+      const j=await (await fetch('price.json?t='+Date.now())).json();
+      document.getElementById('usdt').textContent=Number(j.usdt).toLocaleString('fa-IR')+' تومان';
+      document.getElementById('srcs').textContent='منبع: مدیریت (price.json)';
+    }catch(e2){document.getElementById('usdt').textContent='در دسترس نیست';}
+  }
 }
 load();
-setInterval(load, 60000);
+setInterval(load,60000);
 </script>
 </body>
 </html>
