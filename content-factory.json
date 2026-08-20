@@ -1,0 +1,34 @@
+{
+  "name": "Forexin Content Factory v2",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const topics = ['استاپ‌لاس چرا بیمه است؟','اهرم؛ شمشیر دو لبه','سشن لندن یا نیویورک؟','پرایس اکشن یا اندیکاتور؟','قانون ۲٪ مدیریت سرمایه','لیکوییدیتی چیست؟','وین‌ریت مهم نیست، R:R مهم است','اشتباه رایج تریدرهای تازه‌کار','صبر؛ سلاح حرفه‌ای‌ها','داستان یک معاملهٔ بازنده']; const day = Math.floor(Date.now()/86400000); const topic = topics[day % topics.length]; const tags = '#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #ترک_اصلانی #آموزش_فارکس #پرایس_اکشن #طلا #سرمایه_گذاری'; const lines = ['📝 بستهٔ محتوای روز','','🎯 موضوع: ' + topic,'','📸 کپشن اینستاگرام:',topic + ' — امروز در یک ریلز ۳۰ ثانیه‌ای توضیحش می‌دهم. تا آخر ببین و نظرت را بنویس! 👇',tags,'','▶️ یوتیوب:','تایتل: ' + topic + ' | آموزش کاربردی فارکس','توضیح: در این ویدیو «' + topic + '» را ساده و عملی بررسی می‌کنیم.','youtube.com/@Forexin.turkaslani','','💼 لینکدین:',topic + '؛ یک اصل حرفه‌ای در مدیریت ریسک. در بازارهای مالی، بقا از سود مهم‌تر است.','','📢 تلگرام:','🔥 ' + topic,'گفتگوی کامل در گروه LIT Community']; return [{ json: { topic: topic, pack: lines.join('\\n') } }];"
+      },
+      "name": "Generate Content Pack",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate Content Pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
