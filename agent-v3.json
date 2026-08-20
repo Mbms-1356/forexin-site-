@@ -1,0 +1,46 @@
+{
+  "name": "Forexin Agent v3 LiveMarket",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.nobitex.ir/market/stats?srcCurrency=usdt&dstCurrency=rls",
+        "options": {}
+      },
+      "name": "Nobitex",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.gold-api.com/price/XAU",
+        "options": {}
+      },
+      "name": "Gold",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const usdtRaw = $('Nobitex').first().json; const goldRaw = $('Gold').first().json; let usdt = 0; try { usdt = Math.floor(parseInt(usdtRaw.stats['usdt-rls'].latest) / 10); } catch (e) {} let ounce = 0; try { ounce = parseFloat(goldRaw.price); } catch (e) {} const gold18 = (usdt && ounce) ? Math.round(usdt * ounce / 31.1035 * 0.75) : 0; const topics = ['استاپ‌لاس چرا بیمه است؟','اهرم؛ شمشیر دو لبه','سشن لندن یا نیویورک؟','پرایس اکشن یا اندیکاتور؟','قانون ۲٪ مدیریت سرمایه','لیکوییدیتی چیست؟','وین‌ریت مهم نیست، R:R مهم است','اشتباه رایج تریدرهای تازه‌کار','صبر؛ سلاح حرفه‌ای‌ها','داستان یک معاملهٔ بازنده']; const day = Math.floor(Date.now() / 86400000); const topic = topics[day % topics.length]; const tags = '#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #ترک_اصلانی #آموزش_فارکس #پرایس_اکشن #طلا #سرمایه_گذاری'; const lines = ['📝 بستهٔ محتوای روز + دادهٔ زنده','','🎯 موضوع: ' + topic,'','💹 دادهٔ زندهٔ بازار:',usdt ? '💵 تتر: ' + usdt.toLocaleString('fa-IR') + ' تومان' : '💵 تتر: —',gold18 ? '🥇 طلای ۱۸ عیار: ' + gold18.toLocaleString('fa-IR') + ' تومان/گرم' : '',ounce ? '🌍 انس جهانی: ' + ounce + ' دلار' : '','📸 کپشن اینستاگرام:',topic + ' — امروز در یک ریلز ۳۰ ثانیه‌ای با دادهٔ زنده بازار توضیحش می‌دهم. تا آخر ببین و نظرت را بنویس! 👇',tags,'','▶️ یوتیوب:','تایتل: ' + topic + ' | آموزش کاربردی فارکس','توضیح: در این ویدیو «' + topic + '» را ساده و عملی بررسی می‌کنیم.','youtube.com/@Forexin.turkaslani','','💼 لینکدین:',topic + '؛ یک اصل حرفه‌ای در مدیریت ریسک. در بازارهای مالی، بقا از سود مهم‌تر است.','','📢 تلگرام:','🔥 ' + topic,'گفتگوی کامل در گروه LIT Community']; return [{ json: { topic: topic, usdt: usdt, gold18: gold18, pack: lines.join('\\n') } }];"
+      },
+      "name": "Generate Content Pack",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 300]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": { "main": [[{ "node": "Nobitex", "type": "main", "index": 0 }]] },
+    "Nobitex": { "main": [[{ "node": "Gold", "type": "main", "index": 0 }]] },
+    "Gold": { "main": [[{ "node": "Generate Content Pack", "type": "main", "index": 0 }]] }
+  }
+}
