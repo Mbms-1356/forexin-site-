@@ -1,0 +1,98 @@
+{
+  "name": "Forexin Agent v14 GitHubRelay",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [160, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://mbms-1356.github.io/forexin-site-/price.json",
+        "options": {}
+      },
+      "name": "SitePrice",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [360, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.gold-api.com/price/XAU",
+        "options": {}
+      },
+      "name": "Gold",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [560, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sp = $('SitePrice').first().json; const gr = $('Gold').first().json; let usdt = 0; try { usdt = parseInt(sp.usdt); } catch (e) {} let ounce = 0; try { ounce = parseFloat(gr.price); } catch (e) {} const gold18 = (usdt && ounce) ? Math.round(usdt * ounce / 31.1035 * 0.75) : 0; const topics = ['استاپ‌لاس چرا بیمه است؟','اهرم؛ شمشیر دو لبه','سشن لندن یا نیویورک؟','پرایس اکشن یا اندیکاتور؟','قانون ۲٪ مدیریت سرمایه','لیکوییدیتی چیست؟','وین‌ریت مهم نیست، R:R مهم است','اشتباه رایج تریدرهای تازه‌کار','صبر؛ سلاح حرفه‌ای‌ها','داستان یک معاملهٔ بازنده']; const day = Math.floor(Date.now() / 86400000); const topic = topics[day % topics.length]; const gold18Fa = gold18 ? gold18.toLocaleString('fa-IR') : '—'; const imgUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent('luxury forex trading concept, ' + topic + ', gold candlestick chart, dark background, smart money liquidity zones, cinematic lighting, no text'); const sys = 'تو «استودیو هوش فارکسین» هستی: استراتژیست ارشد محتوا، تحلیل و بازاریابی برند فارکسین ترک اصلانی. هویت برند: بنیان‌گذار مهدی؛ سبک معاملاتی LIT (القای نقدینگی) مبتنی بر نقدینگی، پول هوشمند، ساختار بازار و پرایس اکشن؛ میکروترید M1/M5 در سشن‌های فرانکفورت/لندن/نیویورک؛ فلسفه: بقا مهم‌تر از سود، مدیریت ریسک پیش‌فرض ۱٪، بدون وعدهٔ سود، آموزش محور؛ لحن: حرفه‌ای، صمیمی، مطمئن، مختصر، بدون کلیک‌بیت؛ شعار: حرکت با نخبگان، معامله برای برد. دارایی‌ها: کانال سیگنال forexin_turkaslanifree، آکادمی Forexin_Turkaslani_Base، گروه LIT Community، یوتیوب و اینستا Forexin.turkaslani، سایت و ربات هوشمند TurkaslaniSiteBot. مخاطب: تریدرهای فارسی‌زبان مبتدی تا متوسط. برای هر درخواست به ترتیب، فارسی و مرتب تولید کن: ۱) تحلیل یک‌خطی بازار از داده‌های ورودی ۲) موضوع و زاویهٔ امروز ۳) اینستاگرام: هوک ۳ ثانیه‌ای + کپشن + CTA + ۱۲ هشتگ هدفمند ۴) ریلز ۳۰ ثانیه‌ای ۳ صحنه + متن روی کاور + مود موزیک ۵) یوتیوب: تایتل سئو + توضیح + ۱۲ تگ + کامنت پین ۶) پست حرفه‌ای لینکدین + ۳ هشتگ انگلیسی ۷) پست تلگرام + سوال تعاملی ۸) ۲ ایدهٔ استوری نظرسنجی/کوئیز ۹) بهترین ساعت انتشار به وقت تهران ۱۰) پیشنهاد فردا. قواعد: اعداد فقط از ورودی‌ها؛ جملات کوتاه؛ پایان پست مالی بنویس: این توصیهٔ مالی نیست.'; const usr = 'ورودی‌های زنده: موضوع: ' + topic + ' | تتر: ' + (usdt || '—') + ' تومان | طلای ۱۸: ' + (gold18 || '—') + ' تومان/گرم | انس: ' + (ounce || '—') + ' دلار. بستهٔ کامل ۱۰بخشی را با بالاترین کیفیت تولید کن.'; const fallback = '📸 کپشن اینستاگرام: ' + topic + ' — با دادهٔ زنده بازار در یک ریلز ۳۰ ثانیه‌ای توضیحش می‌دهم. تا آخر ببین و نظرت را بنویس! 👇'; return [{ json: { topic: topic, gold18Fa: gold18Fa, ounce: ounce || '—', imgUrl: imgUrl, sys: sys, usr: usr, fallback: fallback } }];"
+      },
+      "name": "Prompt Builder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://text.pollinations.ai/",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messages: [{ role: 'system', content: $json.sys }, { role: 'user', content: $json.usr }], model: 'openai' }) }}",
+        "options": { "timeout": 30000 }
+      },
+      "name": "AI Brain",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Prompt Builder').first().json; const aiItem = $('AI Brain').first().json; let ai = (aiItem && typeof aiItem.data === 'string') ? aiItem.data : ''; const lines = ['📝 بسته محتوای روز + استودیو هوشمند','', '🎯 موضوع: ' + d.topic,'','🖼️ کاور AI ریلز (بزن و ذخیره کن):', d.imgUrl,'', (ai && ai.length > 50 ? ai : d.fallback), '', '💹 قیمت لحظه‌ای تتر (بزن روی لینک):', '🥇 nobitex.ir/price/usdt', '🥈 tabdeal.org/usdt-price', '🥉 ompfinex.com/markets/usdt-price','', '🪙 طلای ۱۸ عیار: ' + d.gold18Fa + ' تومان/گرم (محاسبهٔ زنده)', '🌍 انس جهانی: ' + d.ounce + ' دلار (زنده)','','▶️ youtube.com/@Forexin.turkaslani']; return [{ json: { pack: lines.join('\\n') } }];"
+      },
+      "name": "Pack Builder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1160, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.github.com/repos/Mbms-1356/site-bot/dispatches",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "token PASTE_PAT_HERE" },
+            { "name": "Accept", "value": "application/vnd.github+json" },
+            { "name": "User-Agent", "value": "n8n" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ event_type: 'send_pack', client_payload: { text: $json.pack } }) }}",
+        "options": {}
+      },
+      "name": "Send via GitHub Relay",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1360, 300],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Manual Trigger": { "main": [[{ "node": "SitePrice", "type": "main", "index": 0 }]] },
+    "SitePrice": { "main": [[{ "node": "Gold", "type": "main", "index": 0 }]] },
+    "Gold": { "main": [[{ "node": "Prompt Builder", "type": "main", "index": 0 }]] },
+    "Prompt Builder": { "main": [[{ "node": "AI Brain", "type": "main", "index": 0 }]] },
+    "AI Brain": { "main": [[{ "node": "Pack Builder", "type": "main", "index": 0 }]] },
+    "Pack Builder": { "main": [[{ "node": "Send via GitHub Relay", "type": "main", "index": 0 }]] }
+  }
+}
