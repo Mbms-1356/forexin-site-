@@ -1,8 +1,8 @@
 {
   "name": "Forexin Custom Post",
   "nodes": [
-    {"parameters":{"formTitle":"پست دلخواه فارکسین","formFields":{"values":[{"fieldLabel":"topic","fieldType":"string"},{"fieldLabel":"text","fieldType":"textarea"}]},"options":{}},"name":"Form","type":"n8n-nodes-base.formTrigger","typeVersion":2,"position":[200,300]},
-    {"parameters":{"method":"POST","url":"https://api.github.com/repos/Mbms-1356/site-bot/dispatches","sendHeaders":true,"headerParameters":{"parameters":[{"name":"Authorization","value":"token PASTE_PAT_HERE"},{"name":"Accept","value":"application/vnd.github+json"},{"name":"User-Agent","value":"n8n"}]},"sendBody":true,"specifyBody":"json","jsonBody":"={{ JSON.stringify({ event_type: 'send_pack', client_payload: { topic: $('Form').first().json.topic, text: $('Form').first().json.text } }) }}","options":{}},"name":"Dispatch","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[440,300]}
+    {"parameters":{"formTitle":"پست دلخواه فارکسین","formDescription":"موضوع و یادداشت بنویس؛ بستهٔ کامل ساخته می‌شود.","formFields":{"values":[{"fieldLabel":"topic","fieldType":"string"},{"fieldLabel":"text","fieldType":"textarea"},{"fieldLabel":"img","fieldType":"string"}]},"options":{}},"name":"Form","type":"n8n-nodes-base.formTrigger","typeVersion":2,"position":[200,300]},
+    {"parameters":{"method":"POST","url":"https://api.github.com/repos/Mbms-1356/site-bot/dispatches","sendHeaders":true,"headerParameters":{"parameters":[{"name":"Authorization","value":"token PASTE_PAT_HERE"},{"name":"Accept","value":"application/vnd.github+json"},{"name":"User-Agent","value":"n8n"}]},"sendBody":true,"specifyBody":"json","jsonBody":"={{ JSON.stringify({ event_type: 'send_pack', client_payload: { topic: $('Form').first().json.topic, text: $('Form').first().json.text, img: $('Form').first().json.img } }) }}","options":{}},"name":"Dispatch","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[440,300]}
   ],
   "connections":{"Form":{"main":[[{"node":"Dispatch","type":"main","index":0}]]}}
 }
