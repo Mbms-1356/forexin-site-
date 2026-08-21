@@ -48,6 +48,30 @@ def commit_site(path,content):
         except Exception:pass
         ur.urlopen(ur.Request('https://api.github.com/repos/Mbms-1356/forexin-site-/contents/'+path,data=json.dumps(body).encode(),headers={'Authorization':'token '+PAT,'User-Agent':'studio','Accept':'application/vnd.github+json'},method='PUT'),timeout=30).read()
     except Exception:pass
+models=[]
+if OR:
+    try:
+        ml=json.loads(get('https://openrouter.ai/api/v1/models',20))
+        free=[m.get('id','') for m in ml.get('data',[]) if m.get('pricing',{}).get('prompt')=='0' and m.get('pricing',{}).get('completion')=='0']
+        pref=[m for m in free if any(k in m.lower() for k in ['qwen','llama','mistral','deepseek','gemini','alpha'])]
+        models=(pref or free)[:3]
+    except Exception:pass
+def ask(s,u):
+    for m in models:
+        try:
+            r=ur.urlopen(ur.Request('https://openrouter.ai/api/v1/chat/completions',data=json.dumps({'model':m,'messages':[{'role':'system','content':s},{'role':'user','content':u}],'temperature':0.9,'max_tokens':1600}).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+OR,'User-Agent':'forexin'}),timeout=60).read().decode()
+            c=json.loads(r)['choices'][0]['message']['content']
+            if c:return c
+        except Exception:pass
+    if GK:
+        try:
+            r=ur.urlopen(ur.Request('https://api.groq.com/openai/v1/chat/completions',data=json.dumps({'model':'llama-3.3-70b-versatile','messages':[{'role':'system','content':s},{'role':'user','content':u}],'temperature':0.9,'max_tokens':1600}).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+GK}),timeout=60).read().decode()
+            c=json.loads(r)['choices'][0]['message']['content']
+            if c:return c
+        except Exception:pass
+    return ''
+def R(name,train,task):
+    return 'تو '+name+' هستی.\nآموزش: '+train+'\nوظیفهٔ تو حالا: '+task
 try:
     from PIL import Image,ImageDraw,ImageFont,ImageChops
     F=None;F2=None;F3=None
@@ -90,7 +114,7 @@ try:
         return im
     def gen_img(prompt,w,h,sd):
         try:
-            u='https://image.pollinations.ai/prompt/'+up.quote(prompt)+', professional forex, candlestick chart visible, dark cinematic golden, no text?width=%d&height=%d&nologo=true&seed=%d'%(w,h,sd)
+            u='https://image.pollinations.ai/prompt/'+up.quote(prompt+', dark cinematic golden, no text')+'?width=%d&height=%d&nologo=true&seed=%d'%(w,h,sd)
             d=get(u,40)
             if len(d)>15000 and (d[:2]==b'\xff\xd8' or d[:4]==b'\x89PNG'):
                 return Image.open(io.BytesIO(d)).convert('RGBA')
@@ -171,36 +195,26 @@ try:
     try:ounce=float(json.loads(get('https://api.gold-api.com/price/XAU',10)).get('price',0))
     except Exception:pass
     g18=int(usdt*ounce/31.1035*0.75) if usdt and ounce else 0
-    sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. اول [imgs] سه پرامپت تصویری انگلیسی متفاوت و مرتبط با موضوع بنویس که با | جدا شوند: (۱) نمای نزدیک چارت کندلی طلایی (۲) میز تریدر با مانیتورهای روشن (۳) نماد گاو و خرس طلایی؛ همه dark cinematic، no text. بعد بخش‌ها: [اینستا] هوک با عدد+کپشن ۳خط+CTA+لینک+۸هشتگ سئو | [یوتیوب] تایتل سئویی+توضیح+۶تگ | [لینکدین] ۳خط | [تلگرام] ۲خط+سوال | [آموزش] توصیه یک‌خطی | [ریلز] سناریو ۳صحنه. پایان: این توصیهٔ مالی نیست.'
-    usr='موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت کاربر: '+custom_text if custom_text else '')
-    models=[]
-    if OR:
-        try:
-            ml=json.loads(get('https://openrouter.ai/api/v1/models',20))
-            free=[m.get('id','') for m in ml.get('data',[]) if m.get('pricing',{}).get('prompt')=='0' and m.get('pricing',{}).get('completion')=='0']
-            pref=[m for m in free if any(k in m.lower() for k in ['qwen','llama','mistral','deepseek','gemini','alpha'])]
-            models=(pref or free)[:3]
-        except Exception:pass
-    ai=''
-    for m in models:
-        try:
-            body=json.dumps({'model':m,'messages':[{'role':'system','content':sysp},{'role':'user','content':usr}],'temperature':0.9,'max_tokens':2200}).encode()
-            r=ur.urlopen(ur.Request('https://openrouter.ai/api/v1/chat/completions',data=body,headers={'Content-Type':'application/json','Authorization':'Bearer '+OR,'User-Agent':'forexin'}),timeout=60).read().decode()
-            cand=json.loads(r)['choices'][0]['message']['content']
-            if cand and '[اینستا]' in cand:ai=cand;break
-        except Exception:pass
-    if not ai and GK:
-        try:
-            body=json.dumps({'model':'llama-3.3-70b-versatile','messages':[{'role':'system','content':sysp},{'role':'user','content':usr}],'temperature':0.9,'max_tokens':2200}).encode()
-            r=ur.urlopen(ur.Request('https://api.groq.com/openai/v1/chat/completions',data=body,headers={'Content-Type':'application/json','Authorization':'Bearer '+GK}),timeout=60).read().decode()
-            cand=json.loads(r)['choices'][0]['message']['content']
-            if cand and '[اینستا]' in cand:ai=cand
-        except Exception:pass
-    if not ai or '[اینستا]' not in ai:
-        ai='[imgs] closeup golden candlestick chart on dark screen | trader desk with glowing monitors | golden bull and bear statues\n[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\n«'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
+    TRAIN='دانش برند: '+facts+' | لحن: حرفه‌ای، صمیمی، مطمئن، انسانی و احساسی، بدون وعدهٔ سود.'
+    IMGTRAIN='تصاویر: dark cinematic gold، مرتبط با فارکس/چارت، بدون متن، هر سه متمایز.'
+    # نقش۱ تحلیلگر
+    an=ask(R('تحلیلگر ارشد بازار فارکسین',TRAIN,'[تحلیل] ۲خط، [زاویه] داستانی احساسی، [هدف] مخاطب و درد او بنویس.'),'موضوع: '+topic+' | انس: '+str(ounce))
+    analysis=part(an,'[تحلیل]','[زاویه]') or topic
+    angle=part(an,'[زاویه]','[هدف]');target=part(an,'[هدف]','')
+    # نقش۲ کارگردان هنری
+    ar=ask(R('کارگردان هنری استودیو فارکسین',TRAIN+' | '+IMGTRAIN,'سه پرامپت تصویر انگلیسی متمایز با | جدا: (۱) نمای نزدیک چارت کندلی (۲) میز تریدر با مانیتور (۳) نماد گاو/خرس.'),'موضوع: '+topic+' | تحلیل: '+analysis)
     tpl=['closeup of golden candlestick trading chart on dark screen','professional trader desk with glowing monitors showing charts','golden bull and bear statues facing each other, dark cinematic']
+    img0=[x.strip() for x in part(ar,'[imgs]','').split('|') if x.strip()]
+    img0=[(img0[i] if i<len(img0) else tpl[i]) for i in range(3)]
+    # نقش۳ کپی‌رایتر
+    cp=ask(R('کپی‌رایتر ارشد فارکسین',TRAIN,'بخش‌های [اینستا][یوتیوب][لینکدین][تلگرام][آموزش][ریلز] را با هوک عدددار، سئو و لینک بنویس.'),'موضوع: '+topic+' | تحلیل: '+analysis+' | زاویه: '+angle+' | هدف: '+target+' | انس: '+str(ounce))
+    # نقش۴ نگهبان QC: متن + تصویر
+    gd=ask(R('نگهبان کیفیت (QC) فارکسین','متن: انسانی/احساسی/بدون جملهٔ تکراری/لحن برند. تصویر: مرتبط با موضوع، متمایز از هم، شامل چارت/عنصر فارکس، dark cinematic gold.','هر دو ورودی را تحلیل و اصلاح کن. خروجی: [imgs] سه پرامپت تصویر نهایی با | جدا، سپس بخش‌های متن نهایی [اینستا] تا [ریلز]. پایان: این توصیهٔ مالی نیست.'),'پرامپت‌های تصویر: '+' | '.join(img0)+'\nپیش‌نویس متن:\n'+cp)
+    ai=gd if (gd and '[اینستا]' in gd) else cp
+    if not ai or '[اینستا]' not in ai:
+        ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
     imglist=[x.strip() for x in part(ai,'[imgs]','[اینستا]').split('|') if x.strip()]
-    imglist=[(imglist[i] if i<len(imglist) else tpl[i]) for i in range(3)]
+    imglist=[(imglist[i] if i<len(imglist) else img0[i]) for i in range(3)]
     cover=None
     if custom_img:
         try:
