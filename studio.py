@@ -8,6 +8,7 @@ NV=os.environ.get('NVIDIA_KEY','');HF=os.environ.get('HF_TOKEN','')
 CUSTOM=os.environ.get('CUSTOM','')
 LINKS='\n🔗 لینک‌ها: nobitex.ir/price/usdt | t.me/forexin_turkaslanifree | youtube.com/@Forexin.turkaslani'
 seed=int(time.time())%100000
+STYLE=random.choice(['photorealistic cinematic photo','isometric 3D render','minimal flat vector art','dramatic digital painting','luxury golden 3D render','moody film still'])
 def post(p,d,ct='application/json'):
     return ur.urlopen(ur.Request(API+p,data=d,headers={'Content-Type':ct}),timeout=40).read()
 def txt(t):post('/sendMessage',json.dumps({'chat_id':CHAT,'text':t}).encode())
@@ -134,38 +135,44 @@ try:
                 return Image.open(io.BytesIO(d)).convert('RGBA')
         except Exception:pass
         return None
-    def chart(w,h,hook,sub,sd,style=0):
-        im=Image.new('RGBA',(w,h),(10,12,18,255));dr=ImageDraw.Draw(im)
-        for x in range(0,w,90):dr.line((x,0,x,h),fill=(22,27,38,255),width=1)
-        for y in range(0,h,90):dr.line((0,y,w,y),fill=(22,27,38,255),width=1)
+    def chart(w,h,hook,sub,sd):
         rnd=random.Random(sd)
+        pal=rnd.choice([(255,200,60),(64,200,255),(120,220,120),(255,110,110),(190,140,255)])
+        bg=rnd.choice([(10,12,18),(16,10,26),(8,16,18),(20,12,10)])
+        lay=rnd.choice(['candles','line','area','bars'])
+        im=Image.new('RGBA',(w,h),bg+(255,));dr=ImageDraw.Draw(im)
+        if rnd.random()<0.7:
+            for x in range(0,w,90):dr.line((x,0,x,h),fill=(255,255,255,14),width=1)
+            for y in range(0,h,90):dr.line((0,y,w,y),fill=(255,255,255,14),width=1)
         n=26;cw=(w-120)//n;x0=60;p=h*0.55;closes=[]
         for i in range(n):
             o=p;p=max(h*0.25,min(h*0.8,p+rnd.uniform(-h*0.06,h*0.062)))
             closes.append((o,p))
         pts=[(x0+i*cw+cw//2,int(c[1])) for i,c in enumerate(closes)]
-        if style==1:
-            acc=(64,200,255)
-            for x,y in pts:dr.line((x,y,x,h),fill=(acc[0],acc[1],acc[2],26),width=max(cw//2,4))
-            dr.line(pts,fill=acc,width=5)
-        elif style==2:
+        upc=(46,200,110,255);dnc=(230,70,70,255)
+        if lay=='line':
+            for wd,al in [(9,40),(5,120),(2,255)]:dr.line(pts,fill=pal+(al,),width=wd)
+        elif lay=='area':
+            for x,y in pts:dr.line((x,y,x,h),fill=pal+(30,),width=max(cw//2,4))
+            dr.line(pts,fill=pal+(255,),width=4)
+        elif lay=='bars':
             for i,(o,p) in enumerate(closes):
-                cx=x0+i*cw+cw//2
-                col=(46,200,110,255) if p<o else (230,70,70,255)
-                bw=max(cw*0.55,6)
-                dr.rectangle((cx-bw/2,min(o,p),cx+bw/2,max(o,p)),fill=col)
-            dr.line(pts,fill=(255,200,60,255),width=3)
+                cx=x0+i*cw+cw//2;col=upc if p<o else dnc
+                dr.line((cx,int(o)-8,cx,int(p)+8),fill=col,width=3)
+                dr.line((cx-6,int(o),cx,int(o)),fill=col,width=3)
+                dr.line((cx,int(p),cx+6,int(p)),fill=col,width=3)
+            dr.line(pts,fill=pal+(255,),width=2)
         else:
             for i,(o,p) in enumerate(closes):
                 cx=x0+i*cw+cw//2
                 hi=min(o,p)-rnd.uniform(4,h*0.03);lo=max(o,p)+rnd.uniform(4,h*0.03)
-                col=(46,200,110,255) if p<o else (230,70,70,255)
+                col=upc if p<o else dnc
                 dr.line((cx,int(hi),cx,int(lo)),fill=col,width=3)
                 bw=max(cw*0.55,6)
                 dr.rectangle((cx-bw/2,min(o,p),cx+bw/2,max(o,p)),fill=col)
-            dr.line(pts,fill=(255,200,60,255),width=4)
+            dr.line(pts,fill=pal+(255,),width=4)
         lp=int(closes[-1][1])
-        for x in range(0,w,24):dr.line((x,lp,x+12,lp),fill=(255,200,60,255),width=2)
+        for x in range(0,w,24):dr.line((x,lp,x+12,lp),fill=pal+(255,),width=2)
         return overlay(im,hook,sub)
     def cta(w,h):
         im=Image.new('RGB',(w,h),(10,12,18));dr=ImageDraw.Draw(im)
@@ -187,7 +194,7 @@ try:
     used=[]
     try:used=json.loads(get('https://mbms-1356.github.io/forexin-site-/used.json',15))
     except Exception:pass
-    custom_topic='';custom_text='';custom_img=''
+    custom_topic='';custom_text='';custom_img='';imgprompt='';custom_image=None
     if CUSTOM:
         try:
             cj=json.loads(CUSTOM)
@@ -195,6 +202,14 @@ try:
             custom_text=cj.get('text','') or ''
             custom_img=cj.get('img','') or ''
         except Exception:custom_topic=CUSTOM
+    if custom_img:
+        if custom_img.startswith('http'):
+            try:
+                d=get(custom_img,30)
+                if len(d)>10000:custom_image=Image.open(io.BytesIO(d)).convert('RGBA')
+            except Exception:pass
+        else:
+            imgprompt=custom_img
     pool=[p for p in vault['principles'] if p not in used] or vault['principles'] or ['مدیریت سرمایه: اول بقا، بعد سود']
     topic=custom_topic or random.choice(pool)
     if not custom_topic:
@@ -210,8 +225,8 @@ try:
     except Exception:pass
     g18=int(usdt*ounce/31.1035*0.75) if usdt and ounce else 0
     TRAIN='دانش برند: '+facts+' | لحن: حرفه‌ای، صمیمی، مطمئن، انسانی و احساسی، بدون وعدهٔ سود.'
-    IMGTRAIN='تصاویر: dark cinematic gold، مرتبط با فارکس/چارت، بدون متن، هر سه متمایز.'
-    an=ask(R('تحلیلگر ارشد بازار فارکسین',TRAIN,'[تحلیل] ۲خط، [زاویه] داستانی احساسی، [هدف] مخاطب و درد او بنویس.'),'موضوع: '+topic+' | انس: '+str(ounce))
+    IMGTRAIN='تصاویر: '+STYLE+'، dark cinematic gold، مرتبط با فارکس/چارت، بدون متن، هر سه متمایز.'
+    an=ask(R('تحلیلگر ارشد بازار فارکسین',TRAIN,'[تحلیل] ۲خط، [زاویه] داستانی احساسی، [هدف] مخاطب و درد او بنویس.'),'موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت: '+custom_text[:300] if custom_text else ''))
     analysis=part(an,'[تحلیل]','[زاویه]') or topic
     angle=part(an,'[زاویه]','[هدف]');target=part(an,'[هدف]','')
     ar=ask(R('کارگردان هنری استودیو فارکسین',TRAIN+' | '+IMGTRAIN,'سه پرامپت تصویر انگلیسی متمایز با | جدا: (۱) نمای نزدیک چارت کندلی (۲) میز تریدر با مانیتور (۳) نماد گاو/خرس.'),'موضوع: '+topic+' | تحلیل: '+analysis)
@@ -223,23 +238,28 @@ try:
     ai=gd if (gd and '[اینستا]' in gd) else cp
     if not ai or '[اینستا]' not in ai:
         ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
+    if custom_text and len(custom_text)>100:
+        ai='[اینستا] '+custom_text+'\n\n[یوتیوب] '+part(ai,'[یوتیوب]','[لینکدین]')+'\n\n[لینکدین] '+part(ai,'[لینکدین','[تلگرام]')+'\n\n[تلگرام] '+custom_text+'\n\n[آموزش] '+part(ai,'[آموزش]','[ریلز]')+'\n\n[ریلز] '+part(ai,'[ریلز]','')
     imglist=[x.strip() for x in part(ai,'[imgs]','[اینستا]').split('|') if x.strip()]
     imglist=[(imglist[i] if i<len(imglist) else img0[i]) for i in range(3)]
+    base=imgprompt
     cover=None
-    if custom_img:
-        try:
-            d=get(custom_img,30)
-            if len(d)>10000:cover=overlay(Image.open(io.BytesIO(d)).convert('RGBA'),short(topic,7),topic)
-        except Exception:pass
-    if cover is None:
+    if custom_image is not None:
+        cover=overlay(custom_image,short(topic,7),topic)
+    elif base:
+        g=gen_img(base,1080,1080,seed)
+        cover=overlay(g,short(topic,7),topic) if g else chart(1080,1080,short(topic,7),topic,seed)
+    else:
         g=gen_img(imglist[0],1080,1080,seed)
-        cover=overlay(g,short(topic,7),topic) if g else chart(1080,1080,short(topic,7),topic,seed,0)
+        cover=overlay(g,short(topic,7),topic) if g else chart(1080,1080,short(topic,7),topic,seed)
     o=io.BytesIO();cover.convert('RGB').save(o,'JPEG',quality=88);cover_b=o.getvalue()
     o=io.BytesIO();Image.open(io.BytesIO(cover_b)).convert('RGB').resize((1080,608)).save(o,'JPEG',quality=88);wide_b=o.getvalue()
-    g1=gen_img(imglist[1],720,900,seed+11)
-    r1=overlay(g1,short(hookT,5),'') if g1 else chart(720,900,short(hookT,5),'',seed+11,1)
-    g2=gen_img(imglist[2],720,900,seed+7)
-    r2=overlay(g2,short(topic,6),'راه‌حل: متد LIT') if g2 else chart(720,900,short(topic,6),'راه‌حل: متد LIT',seed+7,2)
+    p1=(base+', extreme closeup detail') if base else imglist[1]
+    p2=(base+', wide epic establishing shot') if base else imglist[2]
+    g1=gen_img(p1,720,900,seed+11)
+    r1=overlay(g1,short(hookT,5),'') if g1 else chart(720,900,short(hookT,5),'',seed+11)
+    g2=gen_img(p2,720,900,seed+7)
+    r2=overlay(g2,short(topic,6),'راه‌حل: متد LIT') if g2 else chart(720,900,short(topic,6),'راه‌حل: متد LIT',seed+7)
     video=None;verr=''
     try:
         scenes=[r1,r2,cta(720,900)]
@@ -265,12 +285,15 @@ try:
     cardimg=None
     try:
         W,H=1080,1350
-        bg=gen_img(imglist[2],W,H,seed+5)
+        bgp=(base or imglist[2])
+        bg=gen_img(bgp,W,H,seed+5)
         if bg:
             dark=Image.new('RGBA',(W,H),(5,5,10,170))
             cim=Image.alpha_composite(bg,dark)
         else:
-            cim=Image.new('RGBA',(W,H),(18,18,24,255))
+            cim=chart(W,H,'','',seed+9)
+            dark=Image.new('RGBA',(W,H),(5,5,10,150))
+            cim=Image.alpha_composite(cim,dark)
         dr=ImageDraw.Draw(cim)
         dr.rectangle((40,40,W-40,H-40),outline=(212,175,55),width=6)
         dr.text((W//2,130),'FOREXIN SMART STUDIO',fill=(212,175,55),font=F,anchor='mm')
