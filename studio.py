@@ -4,6 +4,7 @@ LOGO='https://mbms-1356.github.io/forexin-site-/logo.png'
 VAULT='https://mbms-1356.github.io/forexin-site-/vault.json'
 FONT='https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Bold.ttf'
 PAT=os.environ.get('GH_PAT','');OR=os.environ.get('OPENROUTER_KEY','')
+CUSTOM=os.environ.get('CUSTOM','')
 seed=int(time.time())
 def post(p,d,ct='application/json'):
     return ur.urlopen(ur.Request(API+p,data=d,headers={'Content-Type':ct}),timeout=40).read()
@@ -56,14 +57,15 @@ try:
             for x in range(lg.width):
                 r,g,b,a=px[x,y]
                 if r>225 and g>225 and b>225:px[x,y]=(255,255,255,0)
-        m=Image.new('L',lg.size,0);ImageDraw.Draw(m).ellipse((0,0,lg.width,lg.height),fill=255)
-        lg.putalpha(ImageChops.multiply(lg.split()[3],m))
         logo=lg
     except Exception:pass
+    def lres(w):
+        ratio=logo.height/max(logo.width,1)
+        return logo.resize((w,int(w*ratio)))
     def putlogo(im,wrel,yoff):
         if logo:
-            lw=max(int(im.width*wrel),70);l2=logo.resize((lw,lw))
-            im.paste(l2,(im.width-lw-24,im.height-lw-yoff),l2)
+            lw=max(int(im.width*wrel),70);l2=lres(lw)
+            im.paste(l2,(im.width-l2.width-24,im.height-l2.height-yoff),l2)
     def chart(w,h,hook,sub,sd):
         im=Image.new('RGB',(w,h),(10,12,18));dr=ImageDraw.Draw(im)
         for x in range(0,w,90):dr.line((x,0,x,h),fill=(22,27,38),width=1)
@@ -95,11 +97,11 @@ try:
         im=Image.new('RGB',(w,h),(10,12,18));dr=ImageDraw.Draw(im)
         dr.rectangle((30,30,w-30,h-30),outline=(212,175,55),width=5)
         if logo:
-            lw=int(w*0.35);l2=logo.resize((lw,lw));im.paste(l2,((w-lw)//2,200),l2)
-        if F:dr.text((w//2,h//2+60),'به ما بپیوندید',font=F,fill=(255,205,70),stroke_width=4,stroke_fill=(0,0,0),anchor='mm')
+            l2=lres(int(w*0.35));im.paste(l2,((w-l2.width)//2,180),l2)
+        if F:dr.text((w//2,h//2+80),'به ما بپیوندید',font=F,fill=(255,205,70),stroke_width=4,stroke_fill=(0,0,0),anchor='mm')
         if F2:
-            dr.text((w//2,h//2+150),'خانوادهٔ فارکسین ترک اصلانی',font=F2,fill=(235,235,235),anchor='mm')
-            dr.text((w//2,h//2+210),'t.me/forexin_turkaslanifree',font=F2,fill=(120,200,255),anchor='mm')
+            dr.text((w//2,h//2+170),'خانوادهٔ فارکسین ترک اصلانی',font=F2,fill=(235,235,235),anchor='mm')
+            dr.text((w//2,h//2+230),'t.me/forexin_turkaslanifree',font=F2,fill=(120,200,255),anchor='mm')
             dr.text((w//2,h-120),'یوتیوب: @Forexin.turkaslani',font=F2,fill=(235,235,235),anchor='mm')
         return im
     vault={'principles':[],'quotes':[],'hooks':[],'lit_facts':[]}
@@ -111,10 +113,18 @@ try:
     used=[]
     try:used=json.loads(get('https://mbms-1356.github.io/forexin-site-/used.json',15))
     except Exception:pass
+    custom_topic='';custom_text=''
+    if CUSTOM:
+        try:
+            cj=json.loads(CUSTOM)
+            custom_topic=cj.get('topic','') or ''
+            custom_text=cj.get('text','') or ''
+        except Exception:custom_topic=CUSTOM
     pool=[p for p in vault['principles'] if p not in used] or vault['principles'] or ['مدیریت سرمایه: اول بقا، بعد سود']
-    topic=random.choice(pool)
-    used.append(topic);used=used[-30:]
-    commit_site('used.json',json.dumps(used,ensure_ascii=False))
+    topic=custom_topic or random.choice(pool)
+    if not custom_topic:
+        used.append(topic);used=used[-30:]
+        commit_site('used.json',json.dumps(used,ensure_ascii=False))
     hookT=random.choice(vault['hooks'] or ['قبل از هر ترید این را ببین'])
     quote=random.choice(vault['quotes'] or ['اول بقا، بعد سود.'])
     facts=' '.join(vault['lit_facts'])+' '+notes
@@ -124,8 +134,8 @@ try:
     try:ounce=float(json.loads(get('https://api.gold-api.com/price/XAU',10)).get('price',0))
     except Exception:pass
     g18=int(usdt*ounce/31.1035*0.75) if usdt and ounce else 0
-    sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. خروجی را دقیقاً بخش‌به‌بخش بنویس: [اینستا] ۱.هوک یک‌خطی کنجکاوی‌برانگیز با عدد ۲.کپشن ۳خطی صمیمی ۳.CTA یک‌خطی ۴.۸هشتگ مخلوط | [یوتیوب] ۱.تایتل سئویی زیر ۶۰کاراکتر ۲.توضیح ۳خطی ۳.۶تگ | [لینکدین] ۳خط حرفه‌ای با درس مدیریتی | [تلگرام] ۲خط + سوال تعاملی | [آموزش] توصیه عملی یک‌خطی | [ریلز] سناریو ۳صحنه: صحنه۱ هوک متنی روی چارت، صحنه۲ توضیح با مثال عددی، صحنه۳ دعوت به پیوستن. پایان: این توصیهٔ مالی نیست.'
-    usr='موضوع: '+topic+' | انس: '+str(ounce)
+    sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. خروجی را دقیقاً بخش‌به‌بخش بنویس: [اینستا] ۱.هوک یک‌خطی با عدد ۲.کپشن ۳خطی ۳.CTA ۴.۸هشتگ | [یوتیوب] ۱.تایتل سئویی ۲.توضیح ۳خطی ۳.۶تگ | [لینکدین] ۳خط | [تلگرام] ۲خط + سوال | [آموزش] توصیه یک‌خطی | [ریلز] سناریو ۳صحنه. پایان: این توصیهٔ مالی نیست.'
+    usr='موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت کاربر: '+custom_text if custom_text else '')
     models=[]
     if OR:
         try:
@@ -143,7 +153,7 @@ try:
             if cand and '[اینستا]' in cand:ai=cand;break
         except Exception:pass
     if not ai or '[اینستا]' not in ai:
-        ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند و همان ۹۰٪ ضرر می‌کنند.\n'+quote+' تجربه‌ات را بنویس 👇\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\nدر این ویدیو «'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌های بازار فراموش نمی‌کنند. بقا از سود مهم‌تر است. #Forex #SmartMoney #RiskManagement\n\n[تلگرام] 🔥 '+topic+'\nشما این اصل را رعایت می‌کنید؟ در گروه بنویسید.\n\n[آموزش] امروز یک معاملهٔ تمرینی با رعایت کامل این اصل انجام بده و نتیجه را در ژورنال یادداشت کن.\n\n[ریلز] صحنه۱: «'+hookT+'» صحنه۲: توضیح روی چارت صحنه۳: دعوت به پیوستن'
+        ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\n«'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
     video=None;verr=''
     try:
         scenes=[chart(720,900,hookT,'',seed),chart(720,900,topic,'راه‌حل: متد LIT',seed+7),cta(720,900)]
@@ -182,7 +192,7 @@ try:
             dr.text((W//2,y),line,fill=(230,230,230),font=F2,anchor='mm');y+=58
             if y>H-260:break
         if logo:
-            l3=logo.resize((280,280));cim.paste(l3,((W-280)//2,H-350),l3)
+            l3=lres(280);cim.paste(l3,((W-l3.width)//2,H-l3.height-70),l3)
         o=io.BytesIO();cim.save(o,'JPEG',quality=88);cardimg=o.getvalue()
     except Exception:pass
     footer='\n\n━ ━ ━  ━ ━\n تتر: nobitex.ir/price/usdt\n🪙 طلای ۱۸: '+fa(g18)+' تومان/گرم | 🌍 انس: '+str(ounce)+' دلار\n\n🎓 یوتیوب: youtube.com/@Forexin.turkaslani\n📢 کانال: t.me/forexin_turkaslanifree\n🤖 ربات: t.me/TurkaslaniSiteBot\n🔥 استارت بزن، قیمت لحظه‌ای ببین!'
