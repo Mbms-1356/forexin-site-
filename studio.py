@@ -5,6 +5,7 @@ VAULT='https://mbms-1356.github.io/forexin-site-/vault.json'
 FONT='https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Bold.ttf'
 PAT=os.environ.get('GH_PAT','');OR=os.environ.get('OPENROUTER_KEY','')
 CUSTOM=os.environ.get('CUSTOM','')
+LINKS='\n🔗 لینک‌ها: nobitex.ir/price/usdt | t.me/forexin_turkaslanifree | youtube.com/@Forexin.turkaslani'
 seed=int(time.time())
 def post(p,d,ct='application/json'):
     return ur.urlopen(ur.Request(API+p,data=d,headers={'Content-Type':ct}),timeout=40).read()
@@ -22,10 +23,15 @@ def part(s,a,b):
 def wrap(s,n):
     out=[];cur=''
     for w in s.split(' '):
-        if len(cur)+len(w)+1>n:out.append(cur);cur=w
+        if len(cur)+len(w)+1>n:
+            if cur:out.append(cur)
+            cur=w
         else:cur=(cur+' '+w).strip()
     if cur:out.append(cur)
     return out
+def short(t,k=6):
+    ws=t.split(' ')
+    return ' '.join(ws[:k])+('…' if len(ws)>k else '')
 def send_file(path,ff,fname,fdata,fctype,caption):
     b='----fxB';body=b''
     body+=('--'+b+'\r\n').encode()+b'Content-Disposition: form-data; name="chat_id"\r\n\r\n'+CHAT.encode()+b'\r\n'
@@ -44,10 +50,10 @@ def commit_site(path,content):
     except Exception:pass
 try:
     from PIL import Image,ImageDraw,ImageFont,ImageChops
-    F=None;F2=None
+    F=None;F2=None;F3=None
     try:
         fd=get(FONT,20)
-        F=ImageFont.truetype(io.BytesIO(fd),64);F2=ImageFont.truetype(io.BytesIO(fd),38)
+        F=ImageFont.truetype(io.BytesIO(fd),58);F2=ImageFont.truetype(io.BytesIO(fd),38);F3=ImageFont.truetype(io.BytesIO(fd),30)
     except Exception:pass
     logo=None
     try:
@@ -56,7 +62,9 @@ try:
         for y in range(lg.height):
             for x in range(lg.width):
                 r,g,b,a=px[x,y]
-                if r>225 and g>225 and b>225:px[x,y]=(255,255,255,0)
+                w=min(r,g,b)
+                if w>240:px[x,y]=(r,g,b,0)
+                elif w>205:px[x,y]=(r,g,b,int((240-w)*255//35))
         logo=lg
     except Exception:pass
     def lres(w):
@@ -86,12 +94,15 @@ try:
         lp=int(closes[-1])
         for x in range(0,w,24):dr.line((x,lp,x+12,lp),fill=(255,200,60),width=2)
         if F:
-            y=100
-            for line in wrap(hook,20):
-                dr.text((w//2,y),line,font=F,fill=(255,205,70),stroke_width=4,stroke_fill=(0,0,0),anchor='mm');y+=90
-        if F2 and sub:dr.text((w//2,h-150),sub,font=F2,fill=(235,235,235),stroke_width=3,stroke_fill=(0,0,0),anchor='mm')
-        if F2:dr.text((30,h-70),'@Forexin.turkaslani',font=F2,fill=(255,200,60),anchor='lm')
-        putlogo(im,0.16,40)
+            y=110
+            for line in wrap(hook,18):
+                dr.text((w//2,y),line,font=F,fill=(255,205,70),stroke_width=4,stroke_fill=(0,0,0),anchor='mm');y+=85
+        if F3 and sub:
+            yy=h-160
+            for line in wrap(sub,30)[:2]:
+                dr.text((w//2,yy),line,font=F3,fill=(235,235,235),stroke_width=3,stroke_fill=(0,0,0),anchor='mm');yy+=48
+        if F3:dr.text((30,h-60),'@Forexin.turkaslani',font=F3,fill=(255,200,60),anchor='lm')
+        putlogo(im,0.15,30)
         return im
     def cta(w,h):
         im=Image.new('RGB',(w,h),(10,12,18));dr=ImageDraw.Draw(im)
@@ -134,7 +145,7 @@ try:
     try:ounce=float(json.loads(get('https://api.gold-api.com/price/XAU',10)).get('price',0))
     except Exception:pass
     g18=int(usdt*ounce/31.1035*0.75) if usdt and ounce else 0
-    sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. خروجی را دقیقاً بخش‌به‌بخش بنویس: [اینستا] ۱.هوک یک‌خطی با عدد ۲.کپشن ۳خطی ۳.CTA ۴.۸هشتگ | [یوتیوب] ۱.تایتل سئویی ۲.توضیح ۳خطی ۳.۶تگ | [لینکدین] ۳خط | [تلگرام] ۲خط + سوال | [آموزش] توصیه یک‌خطی | [ریلز] سناریو ۳صحنه. پایان: این توصیهٔ مالی نیست.'
+    sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. در پایان هر بخش لینک‌های برند و هشتگ/کلمهٔ کلیدی سئو بگذار. خروجی بخش‌به‌بخش: [اینستا] هوک با عدد+کپشن ۳خط+CTA+لینک+۸هشتگ سئو | [یوتیوب] تایتل سئویی+توضیح+۶تگ | [لینکدین] ۳خط | [تلگرام] ۲خط+سوال | [آموزش] توصیه یک‌خطی | [ریلز] سناریو ۳صحنه. پایان: این توصیهٔ مالی نیست.'
     usr='موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت کاربر: '+custom_text if custom_text else '')
     models=[]
     if OR:
@@ -153,10 +164,10 @@ try:
             if cand and '[اینستا]' in cand:ai=cand;break
         except Exception:pass
     if not ai or '[اینستا]' not in ai:
-        ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\n«'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
+        ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\n«'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
     video=None;verr=''
     try:
-        scenes=[chart(720,900,hookT,'',seed),chart(720,900,topic,'راه‌حل: متد LIT',seed+7),cta(720,900)]
+        scenes=[chart(720,900,short(hookT,5),'',seed),chart(720,900,short(topic,6),'راه‌حل: متد LIT',seed+7),cta(720,900)]
         ok=True
         for i,im in enumerate(scenes):
             o=io.BytesIO();im.convert('RGB').save(o,'JPEG',quality=86);open('s%d.jpg'%i,'wb').write(o.getvalue())
@@ -176,8 +187,8 @@ try:
     if verr:
         try:txt('🎬 خطای ریلز: '+verr)
         except Exception:pass
-    o=io.BytesIO();chart(1080,1080,hookT,topic,seed).convert('RGB').save(o,'JPEG',quality=88);cover=o.getvalue()
-    o=io.BytesIO();chart(1080,608,'▶ '+topic,'',seed+3).convert('RGB').save(o,'JPEG',quality=88);wide=o.getvalue()
+    o=io.BytesIO();chart(1080,1080,short(topic,7),topic,seed).convert('RGB').save(o,'JPEG',quality=88);cover=o.getvalue()
+    o=io.BytesIO();chart(1080,608,short(topic,8),'',seed+3).convert('RGB').save(o,'JPEG',quality=88);wide=o.getvalue()
     cardimg=None
     try:
         W,H=1080,1350
@@ -197,9 +208,9 @@ try:
     except Exception:pass
     footer='\n\n━ ━ ━  ━ ━\n تتر: nobitex.ir/price/usdt\n🪙 طلای ۱۸: '+fa(g18)+' تومان/گرم | 🌍 انس: '+str(ounce)+' دلار\n\n🎓 یوتیوب: youtube.com/@Forexin.turkaslani\n📢 کانال: t.me/forexin_turkaslanifree\n🤖 ربات: t.me/TurkaslaniSiteBot\n🔥 استارت بزن، قیمت لحظه‌ای ببین!'
     head='📝 بسته روز | استودیو هوش فارکسین\n🎯 '+topic+'\n\n'
-    send_file('/sendPhoto','photo','insta.jpg',cover,'image/jpeg',head+'📸 اینستاگرام:\n'+part(ai,'[اینستا]','[یوتیوب]'))
+    send_file('/sendPhoto','photo','insta.jpg',cover,'image/jpeg',head+'📸 اینستاگرام:\n'+part(ai,'[اینستا]','[یوتیوب]')+LINKS)
     if video:send_file('/sendVideo','video','reel.mp4',video,'video/mp4','🎬 ریلز ۳صحنه‌ای:\n'+part(ai,'[ریلز]',''))
-    send_file('/sendPhoto','photo','cover.jpg',wide,'image/jpeg','▶️ یوتیوب:\n'+part(ai,'[یوتیوب]','[لینکدین]')+'\n\n💼 لینکدین:\n'+part(ai,'[لینکدین','[تلگرام]'))
+    send_file('/sendPhoto','photo','cover.jpg',wide,'image/jpeg','▶️ یوتیوب:\n'+part(ai,'[یوتیوب]','[لینکدین]')+LINKS+'\n\n💼 لینکدین:\n'+part(ai,'[لینکدین','[تلگرام]'))
     if cardimg:send_file('/sendPhoto','photo','card.jpg',cardimg,'image/jpeg','💡 کارت آموزشی:\n'+part(ai,'[آموزش]','[ریلز]'))
     txt('📢 تلگرام:\n'+part(ai,'[تلگرام]','[آموزش]')+'\n\n🦁 '+quote+footer)
     print('OK')
