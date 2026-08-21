@@ -3,7 +3,7 @@ API='https://api.telegram.org/bot'+os.environ['TOKEN'];CHAT='227491135'
 LOGO='https://mbms-1356.github.io/forexin-site-/logo.png'
 VAULT='https://mbms-1356.github.io/forexin-site-/vault.json'
 FONT='https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Bold.ttf'
-PAT=os.environ.get('GH_PAT','');OR=os.environ.get('OPENROUTER_KEY','')
+PAT=os.environ.get('GH_PAT','');OR=os.environ.get('OPENROUTER_KEY','');GK=os.environ.get('GROQ_KEY','')
 CUSTOM=os.environ.get('CUSTOM','')
 LINKS='\n🔗 لینک‌ها: nobitex.ir/price/usdt | t.me/forexin_turkaslanifree | youtube.com/@Forexin.turkaslani'
 seed=int(time.time())%100000
@@ -57,16 +57,18 @@ try:
     except Exception:pass
     logo=None
     try:
-        lg=Image.open(io.BytesIO(get(LOGO,20))).convert('RGBA')
+        lg=Image.open(io.BytesIO(get(LOGO,20))).convert('RGB')
+        for c in [(0,0),(lg.width-1,0),(0,lg.height-1),(lg.width-1,lg.height-1),(lg.width//2,0),(0,lg.height//2),(lg.width-1,lg.height//2),(lg.width//2,lg.height-1)]:
+            try:ImageDraw.floodfill(lg,c,(255,0,255),thresh=80)
+            except Exception:pass
+        lg=lg.convert('RGBA')
         px=lg.load()
         for y in range(lg.height):
             for x in range(lg.width):
                 r,g,b,a=px[x,y]
-                if min(r,g,b)>240:px[x,y]=(r,g,b,0)
+                if r>200 and g<120 and b>200:px[x,y]=(r,g,b,0)
         bb=lg.getbbox()
         if bb:lg=lg.crop(bb)
-        m=Image.new('L',lg.size,0);ImageDraw.Draw(m).ellipse((0,0,lg.width,lg.height),fill=255)
-        lg.putalpha(ImageChops.multiply(lg.split()[3],m))
         logo=lg
     except Exception:pass
     def lres(w):
@@ -113,8 +115,7 @@ try:
         dr.line(pts,fill=(255,200,60),width=4)
         lp=int(closes[-1])
         for x in range(0,w,24):dr.line((x,lp,x+12,lp),fill=(255,200,60),width=2)
-        im=im.convert('RGBA')
-        return overlay(im,hook,sub)
+        return overlay(im.convert('RGBA'),hook,sub)
     def cta(w,h):
         im=Image.new('RGB',(w,h),(10,12,18));dr=ImageDraw.Draw(im)
         dr.rectangle((30,30,w-30,h-30),outline=(212,175,55),width=5)
@@ -156,7 +157,7 @@ try:
     try:ounce=float(json.loads(get('https://api.gold-api.com/price/XAU',10)).get('price',0))
     except Exception:pass
     g18=int(usdt*ounce/31.1035*0.75) if usdt and ounce else 0
-    sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. اول [img] یک پرامپت انگلیسی یک‌خطی برای تصویر سینمایی مرتبط با موضوع بنویس (بدون متن، dark cinematic forex). بعد بخش‌ها: [اینستا] هوک با عدد+کپشن ۳خط+CTA+لینک+۸هشتگ سئو | [یوتیوب] تایتل سئویی+توضیح+۶تگ | [لینکدین] ۳خط | [تلگرام] ۲خط+سوال | [آموزش] توصیه یک‌خطی | [ریلز] سناریو ۳صحنه. پایان: این توصیهٔ مالی نیست.'
+    sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. اول [en] یک عبارت تصویری انگلیسی ۲-۴ کلمه‌ای مرتبط با موضوع بده. بعد بخش‌ها: [اینستا] هوک با عدد+کپشن ۳خط+CTA+لینک+۸هشتگ سئو | [یوتیوب] تایتل سئویی+توضیح+۶تگ | [لینکدین] ۳خط | [تلگرام] ۲خط+سوال | [آموزش] توصیه یک‌خطی | [ریلز] سناریو ۳صحنه. پایان: این توصیهٔ مالی نیست.'
     usr='موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت کاربر: '+custom_text if custom_text else '')
     models=[]
     if OR:
@@ -174,9 +175,17 @@ try:
             cand=json.loads(r)['choices'][0]['message']['content']
             if cand and '[اینستا]' in cand:ai=cand;break
         except Exception:pass
+    if not ai and GK:
+        try:
+            body=json.dumps({'model':'llama-3.1-8b-instant','messages':[{'role':'system','content':sysp},{'role':'user','content':usr}],'temperature':0.9,'max_tokens':2200}).encode()
+            r=ur.urlopen(ur.Request('https://api.groq.com/openai/v1/chat/completions',data=body,headers={'Content-Type':'application/json','Authorization':'Bearer '+GK}),timeout=60).read().decode()
+            cand=json.loads(r)['choices'][0]['message']['content']
+            if cand and '[اینستا]' in cand:ai=cand
+        except Exception:pass
     if not ai or '[اینستا]' not in ai:
-        ai='[img] dark cinematic forex trading desk with golden candlestick chart, dramatic light, no text\n[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\n«'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
-    imgp=part(ai,'[img]','[اینستا]') or 'dark cinematic forex trading, golden candlestick chart, dramatic light, no text'
+        ai='[en] gold candlestick chart\n[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\n«'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
+    en=part(ai,'[en]','[اینستا]') or 'gold candlestick chart'
+    imgp='professional forex trading screen showing candlestick chart, '+en+', dark cinematic golden light, no text'
     cover=gen_img(imgp,1080,1080,seed)
     cover=overlay(cover,short(topic,7),topic) if cover else chart(1080,1080,short(topic,7),topic,seed)
     o=io.BytesIO();cover.convert('RGB').save(o,'JPEG',quality=88);cover_b=o.getvalue()
