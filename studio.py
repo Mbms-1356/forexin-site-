@@ -88,6 +88,14 @@ try:
         if F3:dr.text((30,im.height-60),'@Forexin.turkaslani',font=F3,fill=(255,200,60),anchor='lm')
         putlogo(im,0.15,30)
         return im
+    def gen_img(prompt,w,h,sd):
+        try:
+            u='https://image.pollinations.ai/prompt/'+up.quote(prompt)+', professional forex, candlestick chart visible, dark cinematic golden, no text?width=%d&height=%d&nologo=true&seed=%d'%(w,h,sd)
+            d=get(u,40)
+            if len(d)>15000 and (d[:2]==b'\xff\xd8' or d[:4]==b'\x89PNG'):
+                return Image.open(io.BytesIO(d)).convert('RGBA')
+        except Exception:pass
+        return None
     def chart(w,h,hook,sub,sd,style=0):
         im=Image.new('RGBA',(w,h),(10,12,18,255));dr=ImageDraw.Draw(im)
         for x in range(0,w,90):dr.line((x,0,x,h),fill=(22,27,38,255),width=1)
@@ -163,7 +171,7 @@ try:
     try:ounce=float(json.loads(get('https://api.gold-api.com/price/XAU',10)).get('price',0))
     except Exception:pass
     g18=int(usdt*ounce/31.1035*0.75) if usdt and ounce else 0
-    sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. بخش‌ها: [اینستا] هوک با عدد+کپشن ۳خط+CTA+لینک+۸هشتگ سئو | [یوتیوب] تایتل سئویی+توضیح+۶تگ | [لینکدین] ۳خط | [تلگرام] ۲خط+سوال | [آموزش] توصیه یک‌خطی | [ریلز] سناریو ۳صحنه. پایان: این توصیهٔ مالی نیست.'
+    sysp='تو استودیو هوش فارکسین هستی؛ برند فارکسین ترک اصلانی؛ متد LIT. دانش برند: '+facts+' لحن حرفه‌ای صمیمی بدون وعدهٔ سود. اول [imgs] سه پرامپت تصویری انگلیسی متفاوت و مرتبط با موضوع بنویس که با | جدا شوند: (۱) نمای نزدیک چارت کندلی طلایی (۲) میز تریدر با مانیتورهای روشن (۳) نماد گاو و خرس طلایی؛ همه dark cinematic، no text. بعد بخش‌ها: [اینستا] هوک با عدد+کپشن ۳خط+CTA+لینک+۸هشتگ سئو | [یوتیوب] تایتل سئویی+توضیح+۶تگ | [لینکدین] ۳خط | [تلگرام] ۲خط+سوال | [آموزش] توصیه یک‌خطی | [ریلز] سناریو ۳صحنه. پایان: این توصیهٔ مالی نیست.'
     usr='موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت کاربر: '+custom_text if custom_text else '')
     models=[]
     if OR:
@@ -189,19 +197,28 @@ try:
             if cand and '[اینستا]' in cand:ai=cand
         except Exception:pass
     if not ai or '[اینستا]' not in ai:
-        ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\n«'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
+        ai='[imgs] closeup golden candlestick chart on dark screen | trader desk with glowing monitors | golden bull and bear statues\n[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس\n«'+topic+'» را ساده و عملی با متد LIT بررسی می‌کنیم.'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
+    tpl=['closeup of golden candlestick trading chart on dark screen','professional trader desk with glowing monitors showing charts','golden bull and bear statues facing each other, dark cinematic']
+    imglist=[x.strip() for x in part(ai,'[imgs]','[اینستا]').split('|') if x.strip()]
+    imglist=[(imglist[i] if i<len(imglist) else tpl[i]) for i in range(3)]
     cover=None
     if custom_img:
         try:
             d=get(custom_img,30)
             if len(d)>10000:cover=overlay(Image.open(io.BytesIO(d)).convert('RGBA'),short(topic,7),topic)
         except Exception:pass
-    if cover is None:cover=chart(1080,1080,short(topic,7),topic,seed,0)
+    if cover is None:
+        g=gen_img(imglist[0],1080,1080,seed)
+        cover=overlay(g,short(topic,7),topic) if g else chart(1080,1080,short(topic,7),topic,seed,0)
     o=io.BytesIO();cover.convert('RGB').save(o,'JPEG',quality=88);cover_b=o.getvalue()
     o=io.BytesIO();Image.open(io.BytesIO(cover_b)).convert('RGB').resize((1080,608)).save(o,'JPEG',quality=88);wide_b=o.getvalue()
+    g1=gen_img(imglist[1],720,900,seed+11)
+    r1=overlay(g1,short(hookT,5),'') if g1 else chart(720,900,short(hookT,5),'',seed+11,1)
+    g2=gen_img(imglist[2],720,900,seed+7)
+    r2=overlay(g2,short(topic,6),'راه‌حل: متد LIT') if g2 else chart(720,900,short(topic,6),'راه‌حل: متد LIT',seed+7,2)
     video=None;verr=''
     try:
-        scenes=[chart(720,900,short(hookT,5),'',seed+11,1),chart(720,900,short(topic,6),'راه‌حل: متد LIT',seed+7,2),cta(720,900)]
+        scenes=[r1,r2,cta(720,900)]
         ok=True
         for i,im in enumerate(scenes):
             o=io.BytesIO();im.convert('RGB').save(o,'JPEG',quality=86);open('s%d.jpg'%i,'wb').write(o.getvalue())
@@ -224,7 +241,13 @@ try:
     cardimg=None
     try:
         W,H=1080,1350
-        cim=Image.new('RGBA',(W,H),(18,18,24,255));dr=ImageDraw.Draw(cim)
+        bg=gen_img(imglist[2],W,H,seed+5)
+        if bg:
+            dark=Image.new('RGBA',(W,H),(5,5,10,170))
+            cim=Image.alpha_composite(bg,dark)
+        else:
+            cim=Image.new('RGBA',(W,H),(18,18,24,255))
+        dr=ImageDraw.Draw(cim)
         dr.rectangle((40,40,W-40,H-40),outline=(212,175,55),width=6)
         dr.text((W//2,130),'FOREXIN SMART STUDIO',fill=(212,175,55),font=F,anchor='mm')
         y=300
