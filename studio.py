@@ -115,16 +115,6 @@ try:
         if logo:
             lw=max(int(im.width*wrel),70);l2=lres(lw)
             im.paste(l2,(im.width-l2.width-24,im.height-l2.height-yoff),l2)
-    def overlay(im,hook,sub):
-        dr=ImageDraw.Draw(im)
-        if F:
-            y=110
-            for line in wrap(hook,18):
-                dr.text((im.width//2,y),line,font=F,fill=(255,205,70),stroke_width=5,stroke_fill=(0,0,0),anchor='mm');y+=85
-        if F3 and sub:dr.text((im.width//2,im.height-160),sub,font=F3,fill=(255,255,255),stroke_width=3,stroke_fill=(0,0,0),anchor='mm')
-        if F3:dr.text((30,im.height-60),'@Forexin.turkaslani',font=F3,fill=(255,200,60),anchor='lm')
-        putlogo(im,0.15,30)
-        return im
     def draw_icon(dr,name,cx,cy,s,col):
         c=col+(255,)
         try:
@@ -142,7 +132,7 @@ try:
                 dr.line((cx,cy,cx,cy-s*0.6),fill=c,width=6)
                 dr.line((cx,cy,cx+s*0.5,cy+s*0.2),fill=c,width=6)
             elif name=='wave':
-                pts=[(cx-s+ (2*s*i/20), cy+int(s*0.5*math.sin(i*0.9))) for i in range(21)]
+                pts=[(cx-s+int(2*s*i/20),cy+int(s*0.5*math.sin(i*0.9))) for i in range(21)]
                 dr.line(pts,fill=c,width=6)
                 dr.line((cx-s,cy+s*0.8,cx+s,cy+s*0.8),fill=c,width=4)
             elif name=='sword':
@@ -172,13 +162,32 @@ try:
         return pts
     def design(w,h,hook,sub,sd,icon):
         rnd=random.Random(sd)
-        pal=rnd.choice(PALS);bg=rnd.choice(BGS)
-        im=Image.new('RGBA',(w,h),bg+(255,));dr=ImageDraw.Draw(im)
-        for x in range(0,w,100):dr.line((x,0,x,h),fill=(255,255,255,12),width=1)
-        for y in range(0,h,100):dr.line((0,y,w,y),fill=(255,255,255,12),width=1)
-        spark(dr,int(w*0.08),int(h*0.62),int(w*0.84),int(h*0.28),rnd,pal)
-        draw_icon(dr,icon,w//2,int(h*0.42),int(min(w,h)*0.15),pal)
-        return overlay(im,hook,sub)
+        pal=rnd.choice(PALS);c1=rnd.choice(BGS);c2=rnd.choice(BGS)
+        im=Image.new('RGBA',(w,h));dr=ImageDraw.Draw(im)
+        for y in range(h):
+            t=y/h
+            dr.line((0,y,w,y),fill=(int(c1[0]+(c2[0]-c1[0])*t),int(c1[1]+(c2[1]-c1[1])*t),int(c1[2]+(c2[2]-c1[2])*t),255))
+        for i in range(3):
+            x=rnd.randint(0,w);sw=rnd.randint(40,120)
+            dr.polygon([(x,0),(x+sw,0),(x+sw-int(h*0.3),h),(x-int(h*0.3),h)],fill=pal+(rnd.randint(15,40),))
+        for x in range(0,w,120):dr.line((x,0,x,h),fill=(255,255,255,10),width=1)
+        spark(dr,int(w*0.08),int(h*0.66),int(w*0.84),int(h*0.24),rnd,pal)
+        ix,iy=rnd.choice([(w//2,int(h*0.42)),(int(w*0.3),int(h*0.42)),(int(w*0.7),int(h*0.42))])
+        dr.ellipse((ix-int(min(w,h)*0.2),iy-int(min(w,h)*0.2),ix+int(min(w,h)*0.2),iy+int(min(w,h)*0.2)),fill=(0,0,0,90))
+        draw_icon(dr,icon,ix,iy,int(min(w,h)*0.14),pal)
+        if F:
+            y=110
+            for line in wrap(hook,16):
+                for ox,oy in [(3,3),(-3,3),(3,-3),(-3,-3)]:
+                    dr.text((w//2+ox,y+oy),line,font=F,fill=(0,0,0,255),anchor='mm')
+                dr.text((w//2,y),line,font=F,fill=pal+(255,),anchor='mm');y+=85
+        if F3:
+            dr.rounded_rectangle((30,30,360,86),radius=28,fill=pal+(255,))
+            dr.text((48,58),'FOREXIN | LIT',font=F3,fill=(10,12,18,255),anchor='lm')
+        if F3 and sub:dr.text((w//2,h-160),sub,font=F3,fill=(255,255,255,255),stroke_width=3,stroke_fill=(0,0,0,255),anchor='mm')
+        if F3:dr.text((30,h-60),'@Forexin.turkaslani',font=F3,fill=(255,200,60,255),anchor='lm')
+        putlogo(im,0.15,30)
+        return im
     def cta(w,h):
         im=Image.new('RGB',(w,h),(10,12,18));dr=ImageDraw.Draw(im)
         dr.rectangle((30,30,w-30,h-30),outline=(212,175,55),width=5)
