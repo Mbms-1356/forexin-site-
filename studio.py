@@ -2,6 +2,7 @@ import json,os,io,time,urllib.request as ur,urllib.parse as up,random,traceback,
 API='https://api.telegram.org/bot'+os.environ['TOKEN'];CHAT='227491135'
 LOGO='https://mbms-1356.github.io/forexin-site-/logo.png'
 VAULT='https://mbms-1356.github.io/forexin-site-/vault.json'
+SITEB='https://mbms-1356.github.io/forexin-site-'
 FONT='https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Bold.ttf'
 PAT=os.environ.get('GH_PAT','');OR=os.environ.get('OPENROUTER_KEY','');GK=os.environ.get('GROQ_KEY','')
 CUSTOM=os.environ.get('CUSTOM','')
@@ -122,6 +123,35 @@ try:
                 return Image.open(io.BytesIO(d)).convert('RGBA')
         except Exception:pass
         return None
+    REPO_IMGS=[]
+    for path in ['','media/']:
+        try:
+            lst=json.loads(get('https://api.github.com/repos/Mbms-1356/forexin-site-/contents/'+path))
+            for f in lst:
+                n=f['name'].lower()
+                if n.endswith(('.jpg','.jpeg','.png','.webp')) and n!='logo.png':
+                    REPO_IMGS.append(f['download_url'])
+        except Exception:pass
+    last_img=''
+    try:last_img=json.loads(get(SITEB+'img_used.json')).get('last','')
+    except Exception:pass
+    def crop_to(im,w,h):
+        iw,ih=im.size;ta=w/h;ia=iw/ih
+        if ia>ta:
+            nw=int(ih*ta);x=(iw-nw)//2;im=im.crop((x,0,x+nw,ih))
+        else:
+            nh=int(iw/ta);y=(ih-nh)//2;im=im.crop((0,y,iw,y+nh))
+        return im.resize((w,h))
+    def media_img(w,h,sd):
+        if not REPO_IMGS:return None,None
+        rnd=random.Random(sd)
+        pool=[u for u in REPO_IMGS if u!=last_img] or REPO_IMGS
+        u=rnd.choice(pool)
+        try:
+            im=Image.open(io.BytesIO(get(u,30))).convert('RGBA')
+            return crop_to(im,w,h),u
+        except Exception:pass
+        return None,None
     def brand(im,hook,sub):
         dr=ImageDraw.Draw(im)
         if F:
@@ -219,10 +249,10 @@ try:
     try:vault.update(json.loads(get(VAULT,15)))
     except Exception:pass
     notes=''
-    try:notes=get('https://mbms-1356.github.io/forexin-site-/notes.txt',15)[:3000]
+    try:notes=get(SITEB+'notes.txt',15)[:3000]
     except Exception:pass
     used=[]
-    try:used=json.loads(get('https://mbms-1356.github.io/forexin-site-/used.json',15))
+    try:used=json.loads(get(SITEB+'used.json',15))
     except Exception:pass
     pool=[p for p in vault['principles'] if p not in used] or vault['principles'] or ['مدیریت سرمایه: اول بقا، بعد سود']
     topic=custom_topic or random.choice(pool)
@@ -234,7 +264,7 @@ try:
     icon=pick_icon(topic)
     facts=' '.join(vault['lit_facts'])+' '+notes
     usdt=0;ounce=0.0
-    try:usdt=int(json.loads(get('https://mbms-1356.github.io/forexin-site-/price.json',10)).get('usdt',0))
+    try:usdt=int(json.loads(get(SITEB+'price.json',10)).get('usdt',0))
     except Exception:pass
     try:ounce=float(json.loads(get('https://api.gold-api.com/price/XAU',10)).get('price',0))
     except Exception:pass
@@ -253,8 +283,19 @@ try:
         ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
     if custom_text and len(custom_text)>100:
         ai='[اینستا] '+custom_text+'\n\n[یوتیوب] '+part(ai,'[یوتیوب]','[لینکدین]')+'\n\n[لینکدین] '+part(ai,'[لینکدین','[تلگرام]')+'\n\n[تلگرام] '+custom_text+'\n\n[آموزش] '+part(ai,'[آموزش]','[ریلز]')+'\n\n[ریلز] '+part(ai,'[ریلز]','')
-    g=gen_img(imgp,1080,1080,seed)
-    cover=brand(g,short(topic,7),topic) if g else design(1080,1080,short(topic,7),topic,seed,icon)
+    cover=None;mu=None
+    if custom_img:
+        try:
+            d=get(custom_img,30)
+            if len(d)>10000:cover=brand(crop_to(Image.open(io.BytesIO(d)).convert('RGBA'),1080,1080),short(topic,7),topic)
+        except Exception:pass
+    if cover is None:
+        mi,mu=media_img(1080,1080,seed)
+        if mi is not None:cover=brand(mi,short(topic,7),topic)
+    if cover is None:
+        g=gen_img(imgp,1080,1080,seed)
+        cover=brand(g,short(topic,7),topic) if g else design(1080,1080,short(topic,7),topic,seed,icon)
+    if mu:commit_site('img_used.json',json.dumps({'last':mu}))
     o=io.BytesIO();cover.convert('RGB').save(o,'JPEG',quality=88);cover_b=o.getvalue()
     o=io.BytesIO();Image.open(io.BytesIO(cover_b)).convert('RGB').resize((1080,608)).save(o,'JPEG',quality=88);wide_b=o.getvalue()
     head='📝 استودیو هوش فارکسین\n🎯 '+topic+'\n\n'
@@ -270,11 +311,11 @@ try:
         print('OK img');sys.exit(0)
     video=None;verr=''
     def clip(imgp2,outp,zoom):
-        vf='zoompan=z=min(zoom+0.0015,1.12):d=100:s=720x900:fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4' if zoom else 'scale=720:900,fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4'
+        vf='zoompan=z=min(zoom+0.0015,1.12):d=100:s=720:900:fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4' if zoom else 'scale=720:900,fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4'
         p=subprocess.run(['ffmpeg','-y','-loop','1','-i',imgp2,'-t','4','-vf',vf,'-c:v','libx264','-pix_fmt','yuv420p',outp],timeout=120,capture_output=True)
         return p.returncode==0
-    g1=gen_img(imgp+', extreme closeup detail',720,900,seed+11)
-    r1=brand(g1,short(hookT,5),'') if g1 else design(720,900,short(hookT,5),'',seed+11,icon)
+    m1,_=media_img(720,900,seed+11)
+    r1=brand(m1,short(hookT,5),'') if m1 is not None else design(720,900,short(hookT,5),'',seed+11,icon)
     scenes=[r1,design(720,900,short(topic,6),'راه‌حل: متد LIT',seed+7,'chart'),cta(720,900)]
     for i,im in enumerate(scenes):
         o=io.BytesIO();im.convert('RGB').save(o,'JPEG',quality=86);open('s%d.jpg'%i,'wb').write(o.getvalue())
@@ -299,10 +340,11 @@ try:
     cardimg=None
     try:
         W,H=1080,1350
-        bg=gen_img(imgp,W,H,seed+5)
-        if bg:
+        m2,_=media_img(W,H,seed+5)
+        if m2 is not None:
+            cim=m2
             dark=Image.new('RGBA',(W,H),(5,5,10,170))
-            cim=Image.alpha_composite(bg,dark)
+            cim=Image.alpha_composite(cim,dark)
         else:
             cim=designbg(W,H,seed+9,icon)
             dark=Image.new('RGBA',(W,H),(5,5,10,150))
@@ -327,7 +369,7 @@ try:
     send_file('/sendPhoto','photo','cover.jpg',wide_b,'image/jpeg','▶️ یوتیوب:\n'+part(ai,'[یوتیوب]','[لینکدین]')+LINKS+'\n\n💼 لینکدین:\n'+part(ai,'[لینکدین','[تلگرام]'))
     if cardimg:send_file('/sendPhoto','photo','card.jpg',cardimg,'image/jpeg','💡 کارت آموزشی:\n'+part(ai,'[آموزش]','[ریلز]'))
     txt('📢 تلگرام:\n'+part(ai,'[تلگرام]','[آموزش]')+'\n\n🦁 '+quote+footer)
-    print('OK full en='+en)
+    print('OK full imgs='+str(len(REPO_IMGS)))
 except SystemExit:
     raise
 except Exception:
