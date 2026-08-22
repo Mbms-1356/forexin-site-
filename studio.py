@@ -1,4 +1,4 @@
-import json,os,io,time,urllib.request as ur,urllib.parse as up,random,traceback,subprocess,base64,math,sys
+import json,os,io,re,time,urllib.request as ur,urllib.parse as up,random,traceback,subprocess,base64,math,sys
 API='https://api.telegram.org/bot'+os.environ['TOKEN'];CHAT='227491135'
 LOGO='https://mbms-1356.github.io/forexin-site-/logo.png'
 VAULT='https://mbms-1356.github.io/forexin-site-/vault.json'
@@ -175,7 +175,7 @@ try:
                 dr.line((cx-s*0.3,cy),(cx-s*0.05,cy+s*0.3),(cx+s*0.4,cy-s*0.3),fill=c,width=6)
             elif name=='scale':
                 dr.line((cx,cy-s),(cx,cy+s*0.7),fill=c,width=6)
-                dr.line((cx-s,cy-s*0.4),(cx+s,cy-s*0.4),fill=c,width=6)
+                dr.line((cx-s,cy-s*0.4,cx+s,cy-s*0.4),fill=c,width=6)
                 dr.arc((cx-s-s*0.35,cy-s*0.4,cx-s+s*0.35,cy+s*0.3),0,180,fill=c,width=5)
                 dr.arc((cx+s-s*0.35,cy-s*0.4,cx+s+s*0.35,cy+s*0.3),0,180,fill=c,width=5)
                 dr.line((cx-s*0.5,cy+s*0.7,cx+s*0.5,cy+s*0.7),fill=c,width=6)
@@ -255,6 +255,12 @@ try:
     try:used=json.loads(get(SITEB+'used.json',15))
     except Exception:pass
     facts=' '.join(vault['lit_facts'])+' '+notes
+    def related(t):
+        ws=[w for w in re.split(r'[\s،,]+',t) if len(w)>2]
+        hits=[]
+        for src in vault['lit_facts']+vault['quotes']+vault['principles']:
+            if any(w in src for w in ws):hits.append(src)
+        return ' | '.join(hits[:6])
     pool=[p for p in vault['principles'] if p not in used]
     if not pool:
         fresh=ask(R('ایده‌پرداز فارکسین','موضوع‌ها جدید، کاربردی و متفاوت از پست‌های قبلی باشند.','فقط ۳ موضوع فارسی کوتاه و تازه دربارهٔ فارکس/طلا/پول هوشمند/روانشناسی بازار بنویس؛ هر خط یک موضوع، بدون شماره و علامت.'),'دانش برند: '+facts)
@@ -268,6 +274,7 @@ try:
     quote=random.choice(vault['quotes'] or ['اول بقا، بعد سود.'])
     icon=pick_icon(topic)
     NARR=random.choice(['با یک داستان واقعی کوتاه','با یک آمار شوکه‌کننده','با یک سوال چالشی','با یک هشدار جدی','با مقایسهٔ دو نوع تریدر','با روایت یک اشتباه رایج'])
+    REL=related(topic)
     usdt=0;ounce=0.0
     try:usdt=int(json.loads(get(SITEB+'price.json',10)).get('usdt',0))
     except Exception:pass
@@ -275,13 +282,13 @@ try:
     except Exception:pass
     g18=int(usdt*ounce/31.1035*0.75) if usdt and ounce else 0
     TRAIN='دانش برند: '+facts+' | لحن: حرفه‌ای، صمیمی، مطمئن، انسانی و احساسی، بدون وعدهٔ سود.'
-    an=ask(R('تحلیلگر ارشد بازار فارکسین',TRAIN,'[تحلیل] ۲خط، [زاویه] داستانی احساسی، [هدف] مخاطب و درد او بنویس. سبک روایت: '+NARR),'موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت: '+custom_text[:300] if custom_text else ''))
+    an=ask(R('تحلیلگر ارشد بازار فارکسین',TRAIN,'[تحلیل] ۲خط، [زاویه] داستانی احساسی، [هدف] مخاطب و درد او بنویس. سبک روایت: '+NARR),'موضوع: '+topic+' | انس: '+str(ounce)+(' | مطالب کتابخانه: '+REL if REL else '')+(' | یادداشت: '+custom_text[:300] if custom_text else ''))
     analysis=part(an,'[تحلیل]','[زاویه]') or topic
     angle=part(an,'[زاویه]','[هدف]');target=part(an,'[هدف]','')
     ad=ask(R('کارگردان هنری','تصویر باید مرتبط با موضوع و فارکس باشد.','فقط یک عبارت تصویری انگلیسی ۳-۶ کلمه‌ای بنویس که مفهوم موضوع را نشان دهد. [en]'),'موضوع: '+topic+' | تحلیل: '+analysis)
     en=part(ad,'[en]','').strip() or 'gold candlestick chart'
     imgp='cinematic photorealistic '+en+', glowing forex candlestick chart in background, dark golden light, no text'
-    cp=ask(R('کپی‌رایتر ارشد فارکسین',TRAIN,'بخش‌های [اینستا][یوتیوب][لینکدین][تلگرام][آموزش][ریلز] را بنویس. هوک عدددار، سئو، لینک. سبک روایت: '+NARR+'. هوک و ساختار کاملاً متفاوت از پست‌های قبلی.'),'موضوع: '+topic+' | تحلیل: '+analysis+' | زاویه: '+angle+' | هدف: '+target+' | انس: '+str(ounce))
+    cp=ask(R('کپی‌رایتر ارشد فارکسین',TRAIN,'بخش‌های [اینستا][یوتیوب][لینکدین][تلگرام][آموزش][ریلز] را بنویس. هوک عدددار، سئو، لینک. سبک روایت: '+NARR+'. هوک و ساختار کاملاً متفاوت از پست‌های قبلی.'),'موضوع: '+topic+' | تحلیل: '+analysis+' | زاویه: '+angle+' | هدف: '+target+' | انس: '+str(ounce)+(' | مطالب کتابخانه: '+REL if REL else ''))
     gd=ask(R('نگهبان کیفیت (QC) فارکسین','متن: انسانی/احساسی/بدون تکرار/لحن برند. شروع و هوک باید متفاوت از پست‌های قبل باشد.','پیش‌نویس را بازنویسی کن و همان بخش‌ها [اینستا] تا [ریلز] را برگردان. پایان: این توصیهٔ مالی نیست.'),cp)
     ai=gd if (gd and '[اینستا]' in gd) else cp
     if not ai or '[اینستا]' not in ai:
@@ -374,7 +381,7 @@ try:
     send_file('/sendPhoto','photo','cover.jpg',wide_b,'image/jpeg','▶️ یوتیوب:\n'+part(ai,'[یوتیوب]','[لینکدین]')+LINKS+'\n\n💼 لینکدین:\n'+part(ai,'[لینکدین','[تلگرام]'))
     if cardimg:send_file('/sendPhoto','photo','card.jpg',cardimg,'image/jpeg','💡 کارت آموزشی:\n'+part(ai,'[آموزش]','[ریلز]'))
     txt('📢 تلگرام:\n'+part(ai,'[تلگرام]','[آموزش]')+'\n\n🦁 '+quote+footer)
-    print('OK full narr='+NARR)
+    print('OK full rel='+str(len(REL)))
 except SystemExit:
     raise
 except Exception:
