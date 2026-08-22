@@ -116,7 +116,7 @@ try:
             im.paste(l2,(im.width-l2.width-24,im.height-l2.height-yoff),l2)
     def gen_img(prompt,w,h,sd):
         try:
-            u='https://image.pollinations.ai/prompt/'+up.quote(prompt)+'?width=%d&height=%d&nologo=true&seed=%d'%(w,h,sd)
+            u='https://image.pollinations.ai/prompt/'+up.quote(prompt)+'?width=%d&height=%d&nologo=true&model=flux&seed=%d'%(w,h,sd)
             d=get(u,40)
             if len(d)>15000 and (d[:2]==b'\xff\xd8' or d[:4]==b'\x89PNG'):
                 return Image.open(io.BytesIO(d)).convert('RGBA')
