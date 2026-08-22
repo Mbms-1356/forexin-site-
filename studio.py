@@ -1,10 +1,9 @@
-import json,os,io,time,urllib.request as ur,urllib.parse as up,random,traceback,subprocess,base64,math
+import json,os,io,time,urllib.request as ur,urllib.parse as up,random,traceback,subprocess,base64,math,sys
 API='https://api.telegram.org/bot'+os.environ['TOKEN'];CHAT='227491135'
 LOGO='https://mbms-1356.github.io/forexin-site-/logo.png'
 VAULT='https://mbms-1356.github.io/forexin-site-/vault.json'
 FONT='https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/ttf/Vazirmatn-Bold.ttf'
 PAT=os.environ.get('GH_PAT','');OR=os.environ.get('OPENROUTER_KEY','');GK=os.environ.get('GROQ_KEY','')
-NV=os.environ.get('NVIDIA_KEY','');HF=os.environ.get('HF_TOKEN','')
 CUSTOM=os.environ.get('CUSTOM','')
 LINKS='\n🔗 لینک‌ها: nobitex.ir/price/usdt | t.me/forexin_turkaslanifree | youtube.com/@Forexin.turkaslani'
 seed=int(time.time())%100000
@@ -115,6 +114,29 @@ try:
         if logo:
             lw=max(int(im.width*wrel),70);l2=lres(lw)
             im.paste(l2,(im.width-l2.width-24,im.height-l2.height-yoff),l2)
+    def gen_img(prompt,w,h,sd):
+        try:
+            u='https://image.pollinations.ai/prompt/'+up.quote(prompt)+'?width=%d&height=%d&nologo=true&seed=%d'%(w,h,sd)
+            d=get(u,40)
+            if len(d)>15000 and (d[:2]==b'\xff\xd8' or d[:4]==b'\x89PNG'):
+                return Image.open(io.BytesIO(d)).convert('RGBA')
+        except Exception:pass
+        return None
+    def brand(im,hook,sub):
+        dr=ImageDraw.Draw(im)
+        if F:
+            y=110
+            for line in wrap(hook,16):
+                for ox,oy in [(3,3),(-3,3),(3,-3),(-3,-3)]:
+                    dr.text((im.width//2+ox,y+oy),line,font=F,fill=(0,0,0,255),anchor='mm')
+                dr.text((im.width//2,y),line,font=F,fill=(255,205,70,255),anchor='mm');y+=85
+        if F3:
+            dr.rounded_rectangle((30,30,360,86),radius=28,fill=(212,175,55,255))
+            dr.text((48,58),'FOREXIN | LIT',font=F3,fill=(10,12,18,255),anchor='lm')
+        if F3 and sub:dr.text((im.width//2,im.height-160),sub,font=F3,fill=(255,255,255,255),stroke_width=3,stroke_fill=(0,0,0,255),anchor='mm')
+        if F3:dr.text((30,im.height-60),'@Forexin.turkaslani',font=F3,fill=(255,200,60,255),anchor='lm')
+        putlogo(im,0.15,30)
+        return im
     def draw_icon(dr,name,cx,cy,s,col):
         c=col+(255,)
         try:
@@ -160,7 +182,7 @@ try:
             pts.append((x0+int(w*i/(n-1)),int(p)))
         for wd,al in [(8,40),(4,140),(2,255)]:dr.line(pts,fill=pal+(al,),width=wd)
         return pts
-    def design(w,h,hook,sub,sd,icon):
+    def designbg(w,h,sd,icon):
         rnd=random.Random(sd)
         pal=rnd.choice(PALS);c1=rnd.choice(BGS);c2=rnd.choice(BGS)
         im=Image.new('RGBA',(w,h));dr=ImageDraw.Draw(im)
@@ -175,19 +197,9 @@ try:
         ix,iy=rnd.choice([(w//2,int(h*0.42)),(int(w*0.3),int(h*0.42)),(int(w*0.7),int(h*0.42))])
         dr.ellipse((ix-int(min(w,h)*0.2),iy-int(min(w,h)*0.2),ix+int(min(w,h)*0.2),iy+int(min(w,h)*0.2)),fill=(0,0,0,90))
         draw_icon(dr,icon,ix,iy,int(min(w,h)*0.14),pal)
-        if F:
-            y=110
-            for line in wrap(hook,16):
-                for ox,oy in [(3,3),(-3,3),(3,-3),(-3,-3)]:
-                    dr.text((w//2+ox,y+oy),line,font=F,fill=(0,0,0,255),anchor='mm')
-                dr.text((w//2,y),line,font=F,fill=pal+(255,),anchor='mm');y+=85
-        if F3:
-            dr.rounded_rectangle((30,30,360,86),radius=28,fill=pal+(255,))
-            dr.text((48,58),'FOREXIN | LIT',font=F3,fill=(10,12,18,255),anchor='lm')
-        if F3 and sub:dr.text((w//2,h-160),sub,font=F3,fill=(255,255,255,255),stroke_width=3,stroke_fill=(0,0,0,255),anchor='mm')
-        if F3:dr.text((30,h-60),'@Forexin.turkaslani',font=F3,fill=(255,200,60,255),anchor='lm')
-        putlogo(im,0.15,30)
         return im
+    def design(w,h,hook,sub,sd,icon):
+        return brand(designbg(w,h,sd,icon),hook,sub)
     def cta(w,h):
         im=Image.new('RGB',(w,h),(10,12,18));dr=ImageDraw.Draw(im)
         dr.rectangle((30,30,w-30,h-30),outline=(212,175,55),width=5)
@@ -199,6 +211,10 @@ try:
             dr.text((w//2,h//2+230),'t.me/forexin_turkaslanifree',font=F2,fill=(120,200,255),anchor='mm')
             dr.text((w//2,h-120),'یوتیوب: @Forexin.turkaslani',font=F2,fill=(235,235,235),anchor='mm')
         return im
+    cj={}
+    try:cj=json.loads(CUSTOM)
+    except Exception:cj={'topic':CUSTOM}
+    custom_topic=cj.get('topic','') or '';custom_text=cj.get('text','') or '';custom_img=cj.get('img','') or '';MODE=cj.get('mode','full')
     vault={'principles':[],'quotes':[],'hooks':[],'lit_facts':[]}
     try:vault.update(json.loads(get(VAULT,15)))
     except Exception:pass
@@ -208,14 +224,6 @@ try:
     used=[]
     try:used=json.loads(get('https://mbms-1356.github.io/forexin-site-/used.json',15))
     except Exception:pass
-    custom_topic='';custom_text='';custom_img='';imgprompt='';custom_image=None
-    if CUSTOM:
-        try:
-            cj=json.loads(CUSTOM)
-            custom_topic=cj.get('topic','') or ''
-            custom_text=cj.get('text','') or ''
-            custom_img=cj.get('img','') or ''
-        except Exception:custom_topic=CUSTOM
     pool=[p for p in vault['principles'] if p not in used] or vault['principles'] or ['مدیریت سرمایه: اول بقا، بعد سود']
     topic=custom_topic or random.choice(pool)
     if not custom_topic:
@@ -235,6 +243,9 @@ try:
     an=ask(R('تحلیلگر ارشد بازار فارکسین',TRAIN,'[تحلیل] ۲خط، [زاویه] داستانی احساسی، [هدف] مخاطب و درد او بنویس.'),'موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت: '+custom_text[:300] if custom_text else ''))
     analysis=part(an,'[تحلیل]','[زاویه]') or topic
     angle=part(an,'[زاویه]','[هدف]');target=part(an,'[هدف]','')
+    ad=ask(R('کارگردان هنری','تصویر باید مرتبط با موضوع و فارکس باشد.','فقط یک عبارت تصویری انگلیسی ۳-۶ کلمه‌ای بنویس که مفهوم موضوع را نشان دهد. [en]'),'موضوع: '+topic+' | تحلیل: '+analysis)
+    en=part(ad,'[en]','').strip() or 'gold candlestick chart'
+    imgp='cinematic photorealistic '+en+', glowing forex candlestick chart in background, dark golden light, no text'
     cp=ask(R('کپی‌رایتر ارشد فارکسین',TRAIN,'بخش‌های [اینستا][یوتیوب][لینکدین][تلگرام][آموزش][ریلز] را با هوک عدددار، سئو و لینک بنویس.'),'موضوع: '+topic+' | تحلیل: '+analysis+' | زاویه: '+angle+' | هدف: '+target+' | انس: '+str(ounce))
     gd=ask(R('نگهبان کیفیت (QC) فارکسین','متن: انسانی/احساسی/بدون تکرار/لحن برند.','پیش‌نویس را بازنویسی کن و همان بخش‌ها [اینستا] تا [ریلز] را برگردان. پایان: این توصیهٔ مالی نیست.'),cp)
     ai=gd if (gd and '[اینستا]' in gd) else cp
@@ -242,37 +253,60 @@ try:
         ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
     if custom_text and len(custom_text)>100:
         ai='[اینستا] '+custom_text+'\n\n[یوتیوب] '+part(ai,'[یوتیوب]','[لینکدین]')+'\n\n[لینکدین] '+part(ai,'[لینکدین','[تلگرام]')+'\n\n[تلگرام] '+custom_text+'\n\n[آموزش] '+part(ai,'[آموزش]','[ریلز]')+'\n\n[ریلز] '+part(ai,'[ریلز]','')
-    cover=design(1080,1080,short(topic,7),topic,seed,icon)
+    g=gen_img(imgp,1080,1080,seed)
+    cover=brand(g,short(topic,7),topic) if g else design(1080,1080,short(topic,7),topic,seed,icon)
     o=io.BytesIO();cover.convert('RGB').save(o,'JPEG',quality=88);cover_b=o.getvalue()
     o=io.BytesIO();Image.open(io.BytesIO(cover_b)).convert('RGB').resize((1080,608)).save(o,'JPEG',quality=88);wide_b=o.getvalue()
+    head='📝 استودیو هوش فارکسین\n🎯 '+topic+'\n\n'
+    if MODE=='cap':
+        txt('✍️ کپشن اینستاگرام:\n'+part(ai,'[اینستا]','[یوتیوب]')+LINKS)
+        txt('▶️ یوتیوب:\n'+part(ai,'[یوتیوب]','[لینکدین]')+LINKS)
+        txt('💼 لینکدین:\n'+part(ai,'[لینکدین','[تلگرام]'))
+        txt('📢 تلگرام:\n'+part(ai,'[تلگرام]','[آموزش]')+'\n🦁 '+quote)
+        print('OK cap');sys.exit(0)
+    if MODE=='img':
+        send_file('/sendPhoto','photo','insta.jpg',cover_b,'image/jpeg',head+'🖼 تصویر موضوع')
+        send_file('/sendPhoto','photo','cover.jpg',wide_b,'image/jpeg','🖼 کاور عریض')
+        print('OK img');sys.exit(0)
     video=None;verr=''
+    def clip(imgp2,outp,zoom):
+        vf='zoompan=z=min(zoom+0.0015,1.12):d=100:s=720x900:fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4' if zoom else 'scale=720:900,fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4'
+        p=subprocess.run(['ffmpeg','-y','-loop','1','-i',imgp2,'-t','4','-vf',vf,'-c:v','libx264','-pix_fmt','yuv420p',outp],timeout=120,capture_output=True)
+        return p.returncode==0
+    g1=gen_img(imgp+', extreme closeup detail',720,900,seed+11)
+    r1=brand(g1,short(hookT,5),'') if g1 else design(720,900,short(hookT,5),'',seed+11,icon)
+    scenes=[r1,design(720,900,short(topic,6),'راه‌حل: متد LIT',seed+7,'chart'),cta(720,900)]
+    for i,im in enumerate(scenes):
+        o=io.BytesIO();im.convert('RGB').save(o,'JPEG',quality=86);open('s%d.jpg'%i,'wb').write(o.getvalue())
     try:
-        scenes=[design(720,900,short(hookT,5),'',seed+11,icon),design(720,900,short(topic,6),'راه‌حل: متد LIT',seed+7,'chart'),cta(720,900)]
-        ok=True
-        for i,im in enumerate(scenes):
-            o=io.BytesIO();im.convert('RGB').save(o,'JPEG',quality=86);open('s%d.jpg'%i,'wb').write(o.getvalue())
-            p=subprocess.run(['ffmpeg','-y','-loop','1','-i','s%d.jpg'%i,'-t','4','-vf','scale=720:900,fps=25','-c:v','libx264','-pix_fmt','yuv420p','s%d.mp4'%i],timeout=120,capture_output=True)
-            if p.returncode!=0:ok=False;verr=p.stderr.decode()[-150:];break
+        ok=all(clip('s%d.jpg'%i,'s%d.mp4'%i,True) for i in range(3))
+        if not ok:ok=all(clip('s%d.jpg'%i,'s%d.mp4'%i,False) for i in range(3))
         if ok:
             open('list.txt','w').write("file 's0.mp4'\nfile 's1.mp4'\nfile 's2.mp4'\n")
             p=subprocess.run(['ffmpeg','-y','-f','concat','-safe','0','-i','list.txt','-c','copy','reel.mp4'],timeout=120,capture_output=True)
             if p.returncode==0:video=open('reel.mp4','rb').read()
-            else:verr=p.stderr.decode()[-150:]
-        if not video:
-            p=subprocess.run(['ffmpeg','-y','-loop','1','-i','s0.jpg','-t','5','-vf','scale=720:900,fps=25','-c:v','libx264','-pix_fmt','yuv420p','reel.mp4'],timeout=120,capture_output=True)
-            if p.returncode==0:video=open('reel.mp4','rb').read()
-            else:verr=p.stderr.decode()[-150:]
     except Exception as ex:
         verr=str(ex)[:150]
-    if verr:
-        try:txt('🎬 خطای ریلز: '+verr)
-        except Exception:pass
+    if not video:
+        try:
+            subprocess.run(['ffmpeg','-y','-loop','1','-i','s0.jpg','-t','5','-vf','scale=720:900,fps=25','-c:v','libx264','-pix_fmt','yuv420p','reel.mp4'],timeout=120,check=True,capture_output=True)
+            video=open('reel.mp4','rb').read()
+        except Exception as ex:verr=str(ex)[:150]
+    if MODE=='vid':
+        if video:send_file('/sendVideo','video','reel.mp4',video,'video/mp4','🎬 ریلز: '+topic)
+        else:txt('🎬 خطای ریلز: '+verr)
+        print('OK vid');sys.exit(0)
     cardimg=None
     try:
         W,H=1080,1350
-        cim=design(W,H,'','',seed+9,icon)
-        dark=Image.new('RGBA',(W,H),(5,5,10,150))
-        cim=Image.alpha_composite(cim,dark)
+        bg=gen_img(imgp,W,H,seed+5)
+        if bg:
+            dark=Image.new('RGBA',(W,H),(5,5,10,170))
+            cim=Image.alpha_composite(bg,dark)
+        else:
+            cim=designbg(W,H,seed+9,icon)
+            dark=Image.new('RGBA',(W,H),(5,5,10,150))
+            cim=Image.alpha_composite(cim,dark)
         dr=ImageDraw.Draw(cim)
         dr.rectangle((40,40,W-40,H-40),outline=(212,175,55),width=6)
         dr.text((W//2,130),'FOREXIN SMART STUDIO',fill=(212,175,55),font=F,anchor='mm')
@@ -288,13 +322,14 @@ try:
         o=io.BytesIO();cim.convert('RGB').save(o,'JPEG',quality=88);cardimg=o.getvalue()
     except Exception:pass
     footer='\n\n━ ━ ━  ━ ━\n تتر: nobitex.ir/price/usdt\n🪙 طلای ۱۸: '+fa(g18)+' تومان/گرم | 🌍 انس: '+str(ounce)+' دلار\n\n🎓 یوتیوب: youtube.com/@Forexin.turkaslani\n📢 کانال: t.me/forexin_turkaslanifree\n🤖 ربات: t.me/TurkaslaniSiteBot\n🔥 استارت بزن، قیمت لحظه‌ای ببین!'
-    head='📝 بسته روز | استودیو هوش فارکسین\n🎯 '+topic+'\n\n'
     send_file('/sendPhoto','photo','insta.jpg',cover_b,'image/jpeg',head+'📸 اینستاگرام:\n'+part(ai,'[اینستا]','[یوتیوب]')+LINKS)
     if video:send_file('/sendVideo','video','reel.mp4',video,'video/mp4','🎬 ریلز ۳صحنه‌ای:\n'+part(ai,'[ریلز]',''))
     send_file('/sendPhoto','photo','cover.jpg',wide_b,'image/jpeg','▶️ یوتیوب:\n'+part(ai,'[یوتیوب]','[لینکدین]')+LINKS+'\n\n💼 لینکدین:\n'+part(ai,'[لینکدین','[تلگرام]'))
     if cardimg:send_file('/sendPhoto','photo','card.jpg',cardimg,'image/jpeg','💡 کارت آموزشی:\n'+part(ai,'[آموزش]','[ریلز]'))
     txt('📢 تلگرام:\n'+part(ai,'[تلگرام]','[آموزش]')+'\n\n🦁 '+quote+footer)
-    print('OK icon='+icon)
+    print('OK full en='+en)
+except SystemExit:
+    raise
 except Exception:
     try:txt('🛠 DEBUG:\n'+traceback.format_exc()[-1200:])
     except Exception:print(traceback.format_exc())
