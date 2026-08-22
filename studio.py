@@ -62,13 +62,13 @@ if OR:
 def ask(s,u):
     for m in models:
         try:
-            r=ur.urlopen(ur.Request('https://openrouter.ai/api/v1/chat/completions',data=json.dumps({'model':m,'messages':[{'role':'system','content':s},{'role':'user','content':u}],'temperature':0.9,'max_tokens':1600}).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+OR,'User-Agent':'forexin'}),timeout=60).read().decode()
+            r=ur.urlopen(ur.Request('https://openrouter.ai/api/v1/chat/completions',data=json.dumps({'model':m,'messages':[{'role':'system','content':s},{'role':'user','content':u}],'temperature':1.0,'max_tokens':1600}).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+OR,'User-Agent':'forexin'}),timeout=60).read().decode()
             c=json.loads(r)['choices'][0]['message']['content']
             if c:return c
         except Exception:pass
     if GK:
         try:
-            r=ur.urlopen(ur.Request('https://api.groq.com/openai/v1/chat/completions',data=json.dumps({'model':'llama-3.3-70b-versatile','messages':[{'role':'system','content':s},{'role':'user','content':u}],'temperature':0.9,'max_tokens':1600}).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+GK}),timeout=60).read().decode()
+            r=ur.urlopen(ur.Request('https://api.groq.com/openai/v1/chat/completions',data=json.dumps({'model':'llama-3.3-70b-versatile','messages':[{'role':'system','content':s},{'role':'user','content':u}],'temperature':1.0,'max_tokens':1600}).encode(),headers={'Content-Type':'application/json','Authorization':'Bearer '+GK}),timeout=60).read().decode()
             c=json.loads(r)['choices'][0]['message']['content']
             if c:return c
         except Exception:pass
@@ -254,7 +254,12 @@ try:
     used=[]
     try:used=json.loads(get(SITEB+'used.json',15))
     except Exception:pass
-    pool=[p for p in vault['principles'] if p not in used] or vault['principles'] or ['مدیریت سرمایه: اول بقا، بعد سود']
+    facts=' '.join(vault['lit_facts'])+' '+notes
+    pool=[p for p in vault['principles'] if p not in used]
+    if not pool:
+        fresh=ask(R('ایده‌پرداز فارکسین','موضوع‌ها جدید، کاربردی و متفاوت از پست‌های قبلی باشند.','فقط ۳ موضوع فارسی کوتاه و تازه دربارهٔ فارکس/طلا/پول هوشمند/روانشناسی بازار بنویس؛ هر خط یک موضوع، بدون شماره و علامت.'),'دانش برند: '+facts)
+        nl=[x.strip(' -•*') for x in fresh.splitlines() if len(x.strip())>8][:3]
+        pool=nl or vault['principles'] or ['مدیریت سرمایه: اول بقا، بعد سود']
     topic=custom_topic or random.choice(pool)
     if not custom_topic:
         used.append(topic);used=used[-30:]
@@ -262,7 +267,7 @@ try:
     hookT=random.choice(vault['hooks'] or ['قبل از هر ترید این را ببین'])
     quote=random.choice(vault['quotes'] or ['اول بقا، بعد سود.'])
     icon=pick_icon(topic)
-    facts=' '.join(vault['lit_facts'])+' '+notes
+    NARR=random.choice(['با یک داستان واقعی کوتاه','با یک آمار شوکه‌کننده','با یک سوال چالشی','با یک هشدار جدی','با مقایسهٔ دو نوع تریدر','با روایت یک اشتباه رایج'])
     usdt=0;ounce=0.0
     try:usdt=int(json.loads(get(SITEB+'price.json',10)).get('usdt',0))
     except Exception:pass
@@ -270,14 +275,14 @@ try:
     except Exception:pass
     g18=int(usdt*ounce/31.1035*0.75) if usdt and ounce else 0
     TRAIN='دانش برند: '+facts+' | لحن: حرفه‌ای، صمیمی، مطمئن، انسانی و احساسی، بدون وعدهٔ سود.'
-    an=ask(R('تحلیلگر ارشد بازار فارکسین',TRAIN,'[تحلیل] ۲خط، [زاویه] داستانی احساسی، [هدف] مخاطب و درد او بنویس.'),'موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت: '+custom_text[:300] if custom_text else ''))
+    an=ask(R('تحلیلگر ارشد بازار فارکسین',TRAIN,'[تحلیل] ۲خط، [زاویه] داستانی احساسی، [هدف] مخاطب و درد او بنویس. سبک روایت: '+NARR),'موضوع: '+topic+' | انس: '+str(ounce)+(' | یادداشت: '+custom_text[:300] if custom_text else ''))
     analysis=part(an,'[تحلیل]','[زاویه]') or topic
     angle=part(an,'[زاویه]','[هدف]');target=part(an,'[هدف]','')
     ad=ask(R('کارگردان هنری','تصویر باید مرتبط با موضوع و فارکس باشد.','فقط یک عبارت تصویری انگلیسی ۳-۶ کلمه‌ای بنویس که مفهوم موضوع را نشان دهد. [en]'),'موضوع: '+topic+' | تحلیل: '+analysis)
     en=part(ad,'[en]','').strip() or 'gold candlestick chart'
     imgp='cinematic photorealistic '+en+', glowing forex candlestick chart in background, dark golden light, no text'
-    cp=ask(R('کپی‌رایتر ارشد فارکسین',TRAIN,'بخش‌های [اینستا][یوتیوب][لینکدین][تلگرام][آموزش][ریلز] را با هوک عدددار، سئو و لینک بنویس.'),'موضوع: '+topic+' | تحلیل: '+analysis+' | زاویه: '+angle+' | هدف: '+target+' | انس: '+str(ounce))
-    gd=ask(R('نگهبان کیفیت (QC) فارکسین','متن: انسانی/احساسی/بدون تکرار/لحن برند.','پیش‌نویس را بازنویسی کن و همان بخش‌ها [اینستا] تا [ریلز] را برگردان. پایان: این توصیهٔ مالی نیست.'),cp)
+    cp=ask(R('کپی‌رایتر ارشد فارکسین',TRAIN,'بخش‌های [اینستا][یوتیوب][لینکدین][تلگرام][آموزش][ریلز] را بنویس. هوک عدددار، سئو، لینک. سبک روایت: '+NARR+'. هوک و ساختار کاملاً متفاوت از پست‌های قبلی.'),'موضوع: '+topic+' | تحلیل: '+analysis+' | زاویه: '+angle+' | هدف: '+target+' | انس: '+str(ounce))
+    gd=ask(R('نگهبان کیفیت (QC) فارکسین','متن: انسانی/احساسی/بدون تکرار/لحن برند. شروع و هوک باید متفاوت از پست‌های قبل باشد.','پیش‌نویس را بازنویسی کن و همان بخش‌ها [اینستا] تا [ریلز] را برگردان. پایان: این توصیهٔ مالی نیست.'),cp)
     ai=gd if (gd and '[اینستا]' in gd) else cp
     if not ai or '[اینستا]' not in ai:
         ai='[اینستا] 🔥 '+hookT+'\n'+topic+'؛ اصلی که ۹۰٪ نادیده می‌گیرند.\n'+quote+' تجربه‌ات را بنویس 👇'+LINKS+'\n#فارکس #ترید #مدیریت_سرمایه #LIT #فارکسین #پرایس_اکشن #طلا #روانشناسی_معاملات\n\n[یوتیوب] '+topic+' | آموزش کاربردی فارکس'+LINKS+'\n#فارکس #آموزش_فارکس #طلا #ترید #LIT #پرایس_اکشن\n\n[لینکدین] '+topic+'؛ اصلی که حرفه‌ای‌ها فراموش نمی‌کنند. #Forex #SmartMoney\n\n[تلگرام] 🔥 '+topic+'\nشما رعایت می‌کنید؟ بنویسید.\n\n[آموزش] یک معاملهٔ تمرینی با این اصل بزن و یادداشت کن.\n\n[ریلز] صحنه۱ هوک صحنه۲ توضیح صحنه۳ دعوت'
@@ -369,7 +374,7 @@ try:
     send_file('/sendPhoto','photo','cover.jpg',wide_b,'image/jpeg','▶️ یوتیوب:\n'+part(ai,'[یوتیوب]','[لینکدین]')+LINKS+'\n\n💼 لینکدین:\n'+part(ai,'[لینکدین','[تلگرام]'))
     if cardimg:send_file('/sendPhoto','photo','card.jpg',cardimg,'image/jpeg','💡 کارت آموزشی:\n'+part(ai,'[آموزش]','[ریلز]'))
     txt('📢 تلگرام:\n'+part(ai,'[تلگرام]','[آموزش]')+'\n\n🦁 '+quote+footer)
-    print('OK full imgs='+str(len(REPO_IMGS)))
+    print('OK full narr='+NARR)
 except SystemExit:
     raise
 except Exception:
