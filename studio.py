@@ -311,7 +311,7 @@ try:
         print('OK img');sys.exit(0)
     video=None;verr=''
     def clip(imgp2,outp,zoom):
-        vf='zoompan=z=min(zoom+0.0015,1.12):d=100:s=720:900:fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4' if zoom else 'scale=720:900,fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4'
+        vf='zoompan=z=min(zoom+0.0015,1.12):d=100:s=720x900:fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4' if zoom else 'scale=720:900,fps=25,fade=t=in:st=0:d=0.4,fade=t=out:st=3.6:d=0.4'
         p=subprocess.run(['ffmpeg','-y','-loop','1','-i',imgp2,'-t','4','-vf',vf,'-c:v','libx264','-pix_fmt','yuv420p',outp],timeout=120,capture_output=True)
         return p.returncode==0
     m1,_=media_img(720,900,seed+11)
